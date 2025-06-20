@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, ScrollView, StyleSheet } from "react-native";
+import { View, Text, Image, ScrollView, Button } from "react-native";
 import { RouteProp, useRoute } from "@react-navigation/native";
+import { usePokemonTeam } from "../../context/PokemonTeamCotext";
 import {
   fetchPokemonDetails,
   PokemonDetailsData,
 } from "@/services/pokemonService";
 import { getTypeColor, styles } from "@/assets/style/DetalhesStyle";
+import { useNavigation } from "expo-router";
 
 type PokemonDetailsParams = {
   PokemonDetails: {
@@ -23,6 +25,8 @@ export default function PokemonDetails() {
   const { pokemonId } = route.params;
   const [pokemon, setPokemon] = useState<PokemonDetailsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const { addToTeam } = usePokemonTeam();
+  const navigation = useNavigation();
 
   useEffect(() => {
     async function loadPokemonDetails() {
@@ -58,6 +62,15 @@ export default function PokemonDetails() {
     <ScrollView contentContainerStyle={styles.container}>
       <Image style={styles.image} source={{ uri: pokemon.imageUrl }} />
       <Text style={styles.title}>{pokemon.name}</Text>
+      <View style={{ marginTop: 20 }}>
+        <Button
+          title="Adicionar ao Time"
+          onPress={() => {
+            addToTeam(pokemon);
+            navigation.goBack();
+          }}
+        />
+      </View>
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Tipos:</Text>
         <View style={styles.typesContainer}>

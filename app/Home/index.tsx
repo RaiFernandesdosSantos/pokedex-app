@@ -6,21 +6,18 @@ import {
   TouchableOpacity,
   TextInput,
 } from "react-native";
-import CardPokemon from "@/assets/components/CardPokemon"; // Ajuste o caminho se necessário
+import CardPokemon from "@/assets/components/CardPokemon";
 import { fetchAllPokemons, Pokemon } from "@/services/pokemonService";
-import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "./index"; // Ajuste conforme a sua estrutura
-import { useNavigation } from "@react-navigation/native";
 import { styles } from "@/assets/style/IndexStyle";
+import { useRouter } from "expo-router";
 
-type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, "Home">;
+const router = useRouter();
 
 export default function HomeScreen() {
   const [pokemons, setPokemons] = useState<Pokemon[]>([]);
   const [loading, setLoading] = useState(true);
   const [filteredPokemons, setFilteredPokemons] = useState<Pokemon[]>([]);
   const [searchText, setSearchText] = useState("");
-  const navigation = useNavigation<HomeScreenNavigationProp>();
 
   useEffect(() => {
     async function loadPokemons() {
@@ -58,9 +55,7 @@ export default function HomeScreen() {
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.cardContainer}
-            onPress={() =>
-              navigation.navigate("PokemonDetails", { pokemonId: item.id })
-            }
+            onPress={() => router.push(`/Home/${item.id}`)}
           >
             <CardPokemon
               number={item.id}
