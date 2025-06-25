@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, Image, ScrollView, Button } from "react-native";
 import { RouteProp, useRoute } from "@react-navigation/native";
-import { usePokemonTeam } from "../../context/PokemonTeamCotext";
+import { usePokemonTeam } from "../context/PokemonTeamContext";
 import {
   fetchPokemonDetails,
   PokemonDetailsData,

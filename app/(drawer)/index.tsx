@@ -55,7 +55,7 @@ export default function HomeScreen() {
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.cardContainer}
-            onPress={() => router.push(`/Home/${item.id}`)}
+            onPress={() => router.push(`/${item.id}`)}
           >
             <CardPokemon
               number={item.id}

@@ -1,8 +1,8 @@
 import { ScrollView, View, Text, Image } from "react-native";
-import { kantoGymLeaders } from "../services/gymService";
-import { usePokemonTeam } from "../context/PokemonTeamCotext";
-import { getTeamWeaknesses } from "../services/typeService";
-import { styles } from "../assets/style/GymStyle";
+import { kantoGymLeaders } from "../../services/gymService";
+import { usePokemonTeam } from "../../context/PokemonTeamContext";
+import { getTeamWeaknesses } from "../../services/typeService";
+import { styles } from "../../assets/style/GymStyle";
 import { useEffect, useState } from "react";
 
 export default function GymScreen() {

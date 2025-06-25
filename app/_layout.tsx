@@ -1,26 +1,32 @@
-import Drawer from "expo-router/drawer";
+import { Stack } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { PokemonTeamProvider } from "@/context/PokemonTeamCotext";
+import { PokemonTeamProvider } from "@/context/PokemonTeamContext";
 
 export default function RootLayout() {
   return (
+    // Os providers ficam aqui para envolver todo o app
     <PokemonTeamProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <Drawer
+        <Stack
           screenOptions={{
-            drawerActiveTintColor: "red",
+            headerStyle: {
+              backgroundColor: "#f4511e", // Cor de exemplo para o header
+            },
+            headerTintColor: "#fff", // Cor do texto e botão de voltar
+            headerTitleStyle: {
+              fontWeight: "bold",
+            },
           }}
         >
-          <Drawer.Screen name="Home" options={{ title: "Início" }} />
-          <Drawer.Screen
-            name="MeuTime"
-            options={{ title: "Meu Time Pokémon" }}
+          {/* Esta tela aponta para o nosso grupo (drawer) e usa o título definido lá */}
+          <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+
+          {/* Esta é a tela de detalhes, que aparecerá sobre o Drawer */}
+          <Stack.Screen
+            name="[pokemonId]"
+            options={{ title: "Detalhes do Pokémon" }}
           />
-          <Drawer.Screen
-            name="Ginasios"
-            options={{ title: "Lideres de Ginasio" }}
-          />
-        </Drawer>
+        </Stack>
       </GestureHandlerRootView>
     </PokemonTeamProvider>
   );

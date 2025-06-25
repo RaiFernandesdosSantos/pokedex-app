@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, FlatList, Image, Button, StyleSheet } from "react-native";
-import { usePokemonTeam } from "../context/PokemonTeamCotext";
+import { usePokemonTeam } from "../../context/PokemonTeamContext";
 
 export default function MeuTime() {
   const { team, removeFromTeam } = usePokemonTeam();

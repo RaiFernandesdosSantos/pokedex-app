@@ -1,5 +1,5 @@
 import { fetchPokemonDetails } from "./pokemonService";
-import { TeamPokemon } from "../context/PokemonTeamCotext";
+import { TeamPokemon } from "../context/PokemonTeamContext";
 
 export async function getPokemonTypeWeaknesses(
   types: string[]
