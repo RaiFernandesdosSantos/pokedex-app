@@ -1,20 +1,29 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { getTypeColor } from "../style/DetalhesStyle";
+import { View, Text } from "react-native";
+import { createStyleSheet, useStyles } from "react-native-unistyles";
+import { theme } from "../style/theme";
 
 type TypeBadgeProps = {
   typeName: string;
 };
 
 export default function TypeBadge({ typeName }: TypeBadgeProps) {
+  const { styles } = useStyles(stylesheet);
+  const key = `pokemonType${
+    typeName.charAt(0).toUpperCase() + typeName.slice(1)
+  }`;
+  // Corrige o erro de tipagem usando as const assertions e type assertion para acessar a cor dinamicamente
+  const typeColor =
+    (theme.colors as Record<string, string>)[key] ||
+    theme.colors.grayscaleMedium;
   return (
-    <View style={[styles.badge, { backgroundColor: getTypeColor(typeName) }]}>
+    <View style={[styles.badge, { backgroundColor: typeColor }]}>
       <Text style={styles.text}>{typeName}</Text>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const stylesheet = createStyleSheet((theme) => ({
   badge: {
     paddingVertical: 5,
     paddingHorizontal: 10,
@@ -25,9 +34,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   text: {
-    color: "#fff",
+    color: theme.colors.grayscaleWhite,
     fontSize: 12,
     fontWeight: "bold",
     textAlign: "center",
+    textTransform: "capitalize",
   },
-});
+}));

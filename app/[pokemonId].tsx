@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import EvolutionStage from "@/assets/components/EvolutionStage";
 import TypeBadge from "@/assets/components/TypeBadge";
+import StatBar from "@/assets/components/StatBar";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { usePokemonTeam } from "../context/PokemonTeamContext";
 import {
@@ -97,12 +98,7 @@ export default function PokemonDetails() {
         <Text style={styles.sectionTitle}>Tipos:</Text>
         <View style={styles.typesContainer}>
           {pokemon.types.map((type) => (
-            <View
-              key={type}
-              style={[styles.typeBox, { backgroundColor: getTypeColor(type) }]}
-            >
-              <Text style={styles.typeText}>{type}</Text>
-            </View>
+            <TypeBadge key={type} typeName={type} />
           ))}
         </View>
       </View>
@@ -117,11 +113,7 @@ export default function PokemonDetails() {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Estatísticas:</Text>
         {pokemon.stats.map((stat) => (
-          <View key={stat.name} style={styles.statContainer}>
-            <Text style={styles.textItem}>
-              {stat.name}: {stat.base_stat}
-            </Text>
-          </View>
+          <StatBar key={stat.name} statName={stat.name} value={stat.base_stat} />
         ))}
       </View>
       <View style={styles.section}>
