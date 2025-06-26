@@ -2,6 +2,60 @@
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
+---
+
+## 📁 Estrutura de Pastas
+
+```
+├── app/
+│   ├── _layout.tsx         # Layout raiz, proteção de rotas e providers
+│   ├── login.tsx           # Tela de login
+│   ├── register.tsx        # Tela de cadastro
+│   ├── (drawer)/           # Grupo de rotas privadas (Drawer)
+│   │   ├── _layout.tsx     # Layout do Drawer
+│   │   ├── index.tsx       # Home (Pokédex)
+│   │   ├── perfil.tsx      # Tela de perfil e time do usuário
+│   │   ├── Ginasios.tsx    # Tela de líderes de ginásio
+│   │   └── ...
+│   └── Home/
+│       ├── _layout.tsx     # Stack para detalhes
+│       ├── [pokemonId].tsx # Detalhes do Pokémon
+│       └── index.tsx       # Lista de Pokémons
+├── assets/
+│   ├── components/         # Componentes reutilizáveis (ex: CardPokemon)
+│   └── style/              # Estilos separados por tela/componente
+├── context/
+│   ├── AuthContext.tsx     # Contexto de autenticação
+│   └── PokemonTeamContext.tsx # Contexto do time do usuário (Firestore)
+├── services/               # Serviços de API (Pokémon, tipos, ginásios)
+├── config/
+│   └── firebaseConfig.ts   # Configuração do Firebase
+├── package.json
+├── tsconfig.json
+└── ...
+```
+
+---
+
+## 🔄 Fluxo do App (Diagrama Simplificado)
+
+```
+Usuário abre o app
+   │
+   ▼
+[Proteção de Rotas em _layout.tsx]
+   │
+   ├── Não autenticado? ──► [login.tsx] ou [register.tsx]
+   │
+   └── Autenticado? ──────► [(drawer)/index.tsx] (Pokédex)
+                                 │
+                                 ├── [perfil.tsx] (Perfil e Time)
+                                 ├── [Ginasios.tsx] (Líderes)
+                                 └── [Home/[pokemonId].tsx] (Detalhes)
+```
+
+---
+
 ## Get started
 
 1. Install dependencies

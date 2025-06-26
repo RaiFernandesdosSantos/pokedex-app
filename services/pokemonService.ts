@@ -1,3 +1,27 @@
+/**
+ * pokemonService.ts
+ *
+ * Serviço para buscar dados de Pokémon da PokéAPI.
+ *
+ * Propósito:
+ *   - Fornece funções para buscar todos os Pokémon e detalhes individuais.
+ *
+ * Integração:
+ *   - Importe e use fetchAllPokemons e fetchPokemonDetails nas telas que precisam de dados de Pokémon.
+ *
+ * Exemplo de uso:
+ *   const pokemons = await fetchAllPokemons(151);
+ *   const details = await fetchPokemonDetails(25);
+ *
+ * Pontos de atenção:
+ *   - As funções são assíncronas e podem lançar erros de rede.
+ *   - O fetchAllPokemons faz múltiplas requisições (uma para cada Pokémon).
+ *   - Considere tratar loading e erros na UI.
+ *
+ * Sugestão:
+ *   - Implemente cache ou paginação para melhorar performance.
+ */
+
 export type Pokemon = {
   id: number;
   number: number;

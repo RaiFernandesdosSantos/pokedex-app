@@ -1,3 +1,26 @@
+/**
+ * gymService.ts
+ *
+ * Serviço com dados estáticos dos líderes de ginásio de Kanto.
+ *
+ * Propósito:
+ *   - Fornece informações sobre líderes de ginásio, seus times e tipos.
+ *   - Usado para exibir informações e desafios na tela de ginásios.
+ *
+ * Integração:
+ *   - Importe kantoGymLeaders para listar líderes e seus times.
+ *
+ * Exemplo de uso:
+ *   kantoGymLeaders.map(gym => ...)
+ *
+ * Pontos de atenção:
+ *   - Os times dos líderes são arrays de IDs de Pokémon (não objetos completos).
+ *   - Se quiser mostrar detalhes dos Pokémon, busque na PokéAPI usando o ID.
+ *
+ * Sugestão:
+ *   - Expanda para incluir líderes de outras regiões se desejar.
+ */
+
 export interface GymLeader {
   name: string;
   city: string;

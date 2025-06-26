@@ -1,40 +1,54 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, ScrollView, Button } from "react-native";
-import { RouteProp, useRoute } from "@react-navigation/native";
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  Button,
+  StyleSheet,
+} from "react-native";
+import { useLocalSearchParams, useNavigation } from "expo-router";
 import { usePokemonTeam } from "../context/PokemonTeamContext";
 import {
   fetchPokemonDetails,
   PokemonDetailsData,
 } from "@/services/pokemonService";
 import { getTypeColor, styles } from "@/assets/style/DetalhesStyle";
-import { useNavigation } from "expo-router";
-
-type PokemonDetailsParams = {
-  PokemonDetails: {
-    pokemonId: number;
-  };
-};
-
-type PokemonDetailsRouteProp = RouteProp<
-  PokemonDetailsParams,
-  "PokemonDetails"
->;
 
 export default function PokemonDetails() {
-  const route = useRoute<PokemonDetailsRouteProp>();
-  const { pokemonId } = route.params;
+  const { pokemonId } = useLocalSearchParams<{ pokemonId: string }>();
   const [pokemon, setPokemon] = useState<PokemonDetailsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [debugMessage, setDebugMessage] = useState<string>("Initializing...");
   const { addToTeam } = usePokemonTeam();
   const navigation = useNavigation();
 
   useEffect(() => {
     async function loadPokemonDetails() {
+      if (!pokemonId) {
+        console.error("No pokemonId provided");
+        setLoading(false);
+        setDebugMessage("Error: No Pokémon ID provided.");
+        return;
+      }
+      setDebugMessage("Loading Pokémon data for ID: " + pokemonId);
       try {
-        const data = await fetchPokemonDetails(pokemonId);
+        console.log("Fetching data for Pokémon ID:", pokemonId);
+        const data = await fetchPokemonDetails(Number(pokemonId));
+        console.log("Data fetched successfully:", data);
         setPokemon(data);
+        setDebugMessage(
+          "Data loaded successfully for Pokémon ID: " + pokemonId
+        );
       } catch (error) {
         console.error("Erro ao carregar os detalhes:", error);
+        if (error instanceof Error) {
+          console.error("Error message:", error.message);
+          console.error("Error stack:", error.stack);
+          setDebugMessage("Error loading data: " + error.message);
+        } else {
+          setDebugMessage("Unknown error loading data.");
+        }
       } finally {
         setLoading(false);
       }
@@ -46,6 +60,7 @@ export default function PokemonDetails() {
     return (
       <View style={styles.loadingContainer}>
         <Text>Carregando...</Text>
+        <Text style={localStyles.debugText}>{debugMessage}</Text>
       </View>
     );
   }
@@ -53,13 +68,17 @@ export default function PokemonDetails() {
   if (!pokemon) {
     return (
       <View style={styles.errorContainer}>
-        <Text>Erro ao carregar os dados do Pokémon.</Text>
+        <Text>
+          Erro ao carregar os dados do Pokémon. Por favor, tente novamente.
+        </Text>
+        <Text style={localStyles.debugText}>{debugMessage}</Text>
       </View>
     );
   }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <Text style={localStyles.debugText}>{debugMessage}</Text>
       <Image style={styles.image} source={{ uri: pokemon.imageUrl }} />
       <Text style={styles.title}>{pokemon.name}</Text>
       <View style={{ marginTop: 20 }}>
@@ -105,3 +124,16 @@ export default function PokemonDetails() {
     </ScrollView>
   );
 }
+
+const localStyles = StyleSheet.create({
+  debugText: {
+    color: "rgb(206, 52, 58)", // Red as per theme for visibility
+    fontSize: 14,
+    fontWeight: "bold",
+    marginBottom: 10,
+    textAlign: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    padding: 5,
+    borderRadius: 5,
+  },
+});
