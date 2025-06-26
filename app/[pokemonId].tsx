@@ -6,7 +6,10 @@ import {
   ScrollView,
   Button,
   StyleSheet,
+  FlatList,
 } from "react-native";
+import EvolutionStage from "@/assets/components/EvolutionStage";
+import TypeBadge from "@/assets/components/TypeBadge";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { usePokemonTeam } from "../context/PokemonTeamContext";
 import {
@@ -121,6 +124,54 @@ export default function PokemonDetails() {
           </View>
         ))}
       </View>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Evoluções:</Text>
+        <FlatList
+          horizontal
+          data={pokemon.evolutionChain}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item, index }) => (
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <EvolutionStage {...item} />
+              {index < pokemon.evolutionChain.length - 1 && (
+                <Text style={{ fontSize: 24, marginHorizontal: 10 }}>→</Text>
+              )}
+            </View>
+          )}
+        />
+      </View>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Fraquezas (Dano x2):</Text>
+        <View style={localStylesExtended.typeGrid}>
+          {pokemon.damageRelations.weaknesses.map((type) => (
+            <TypeBadge key={type} typeName={type} />
+          ))}
+        </View>
+      </View>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Resistências (Dano x0.5):</Text>
+        <View style={localStylesExtended.typeGrid}>
+          {pokemon.damageRelations.resistances.map((type) => (
+            <TypeBadge key={type} typeName={type} />
+          ))}
+        </View>
+      </View>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Imunidades (Dano x0):</Text>
+        <View style={localStylesExtended.typeGrid}>
+          {pokemon.damageRelations.immunities.map((type) => (
+            <TypeBadge key={type} typeName={type} />
+          ))}
+        </View>
+      </View>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Descrição da Pokédex:</Text>
+        <View style={localStylesExtended.pokedexDescription}>
+          <Text style={localStylesExtended.pokedexText}>
+            {pokemon.pokedexDescription}
+          </Text>
+        </View>
+      </View>
     </ScrollView>
   );
 }
@@ -135,5 +186,27 @@ const localStyles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.8)",
     padding: 5,
     borderRadius: 5,
+  },
+});
+
+// Local styles for new UI elements
+const localStylesExtended = StyleSheet.create({
+  typeGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "flex-start",
+  },
+  pokedexDescription: {
+    backgroundColor: "#f0f0f0",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 10,
+    marginTop: 5,
+  },
+  pokedexText: {
+    fontFamily: "monospace",
+    fontSize: 14,
+    color: "#333",
   },
 });
