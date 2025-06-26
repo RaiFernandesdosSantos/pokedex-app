@@ -22,6 +22,9 @@
  *   - Implemente cache ou paginação para melhorar performance.
  */
 
+import { db } from "@/config/firebaseConfig";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+
 export type Pokemon = {
   id: number;
   number: number;
@@ -73,38 +76,55 @@ export type PokemonDetailsData = {
   imageUrl: string;
   abilities: string[];
   stats: { name: string; base_stat: number }[];
+  pokedexDescription?: string;
+  evolutionChainUrl?: string;
 };
 
 export async function fetchPokemonDetails(
   pokemonId: number
 ): Promise<PokemonDetailsData> {
-  try {
-    const response = await fetch(
-      `https://pokeapi.co/api/v2/pokemon/${pokemonId}`
-    );
-    const data = await response.json();
+  // 1. Tenta buscar do nosso cache no Firestore PRIMEIRO
+  const pokemonDocRef = doc(db, "pokedex", pokemonId.toString());
+  const docSnap = await getDoc(pokemonDocRef);
 
-    const types = data.types.map((item: any) => item.type.name);
-    const abilities = data.abilities.map((item: any) => item.ability.name);
-    const stats = data.stats.map((item: any) => ({
-      name: item.stat.name,
-      base_stat: item.base_stat,
-    }));
-
-    const pokemonDetails: PokemonDetailsData = {
-      id: data.id,
-      name: data.name,
-      types,
-      imageUrl:
-        data.sprites.other["official-artwork"].front_default ||
-        data.sprites.front_default,
-      abilities,
-      stats,
-    };
-
-    return pokemonDetails;
-  } catch (error) {
-    console.error("Erro ao buscar detalhes do Pokémon:", error);
-    throw error;
+  if (docSnap.exists()) {
+    console.log("Pokémon encontrado no cache do Firestore!");
+    return docSnap.data() as PokemonDetailsData;
   }
+
+  // 2. Se NÃO estiver no cache, busca na PokeAPI
+  console.log("Pokémon não encontrado no cache. Buscando na PokeAPI...");
+  const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonId}`);
+  const data = await response.json();
+
+  // Chamada extra para species
+  const speciesResponse = await fetch(
+    `https://pokeapi.co/api/v2/pokemon-species/${pokemonId}`
+  );
+  const speciesData = await speciesResponse.json();
+
+  const flavorTextEntry = speciesData.flavor_text_entries.find(
+    (entry: any) => entry.language.name === "en"
+  );
+
+  const standardizedData: PokemonDetailsData = {
+    id: data.id,
+    name: data.name,
+    imageUrl: data.sprites.other["official-artwork"].front_default,
+    types: data.types.map((t: any) => t.type.name),
+    abilities: data.abilities.map((a: any) => a.ability.name),
+    stats: data.stats.map((s: any) => ({
+      name: s.stat.name,
+      base_stat: s.base_stat,
+    })),
+    pokedexDescription:
+      flavorTextEntry?.flavor_text.replace(/\s+/g, " ") ||
+      "No description available.",
+    evolutionChainUrl: speciesData.evolution_chain.url,
+  };
+
+  // 4. Salva no cache do Firestore
+  await setDoc(pokemonDocRef, standardizedData);
+
+  return standardizedData;
 }

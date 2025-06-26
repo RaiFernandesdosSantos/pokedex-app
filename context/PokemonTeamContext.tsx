@@ -43,6 +43,7 @@ import {
   arrayUnion,
   arrayRemove,
 } from "firebase/firestore";
+import { PokemonDetailsData } from "@/services/pokemonService";
 
 export type TeamPokemon = {
   id: number;
@@ -54,7 +55,7 @@ export type TeamPokemon = {
 type PokemonTeamContextType = {
   team: TeamPokemon[];
   isLoadingTeam: boolean;
-  addToTeam: (pokemon: TeamPokemon) => void;
+  addToTeam: (pokemon: PokemonDetailsData) => Promise<void>;
   removeFromTeam: (pokemonId: number) => void;
 };
 
@@ -87,16 +88,29 @@ export const PokemonTeamProvider = ({ children }: { children: ReactNode }) => {
     fetchTeam();
   }, [user]);
 
-  const addToTeam = async (pokemon: TeamPokemon) => {
+  const addToTeam = async (pokemon: PokemonDetailsData) => {
     if (!user) return;
     if (team.find((p) => p.id === pokemon.id)) return;
     if (team.length >= 6) {
       alert("Seu time já está cheio!");
       return;
     }
+
+    // Cria o objeto limpo e padronizado
+    const pokemonToAdd: TeamPokemon = {
+      id: pokemon.id,
+      name: pokemon.name,
+      imageUrl: pokemon.imageUrl,
+      types: pokemon.types,
+    };
+
     const userDocRef = doc(db, "users", user.uid);
-    setTeam((prev) => [...prev, pokemon]);
-    await setDoc(userDocRef, { team: arrayUnion(pokemon) }, { merge: true });
+    setTeam((prev) => [...prev, pokemonToAdd]);
+    await setDoc(
+      userDocRef,
+      { team: arrayUnion(pokemonToAdd) },
+      { merge: true }
+    );
   };
 
   const removeFromTeam = async (pokemonId: number) => {
