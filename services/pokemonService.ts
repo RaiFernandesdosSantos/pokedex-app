@@ -20,6 +20,18 @@
  *
  * Sugestão:
  *   - Implemente cache ou paginação para melhorar performance.
+ *
+ * Detalhes de implementação:
+ *   - fetchPokemonDetails utiliza Firestore como cache e enriquece os dados com:
+ *     - Cadeia de evolução (evolutionChain)
+ *     - Relações de dano (damageRelations)
+ *     - Descrição da Pokédex (pokedexDescription)
+ *     - Locais de encontro em Kanto (kantoLocations)
+ *   - O cache só é considerado válido se evolutionChain e kantoLocations estiverem presentes.
+ *   - fetchAllPokemons retorna um array básico de Pokémon para listagem.
+ *
+ * Sugestão de extensão:
+ *   - Adicione suporte a outras regiões ou recursos extras conforme necessário.
  */
 
 import { db } from "@/config/firebaseConfig";
@@ -53,6 +65,10 @@ export type PokemonDetailsData = {
     resistances: string[];
     immunities: string[];
   };
+  kantoLocations?: {
+    version: string;
+    locations: string[];
+  }[];
 };
 
 // --- FUNÇÕES DO SERVIÇO ---
@@ -92,8 +108,8 @@ export async function fetchPokemonDetails(
   const pokemonDocRef = doc(db, "pokedex", pokemonId.toString());
   const docSnap = await getDoc(pokemonDocRef);
 
-  // Se o documento existe E já tem evolutionChain, então está completo
-  if (docSnap.exists() && docSnap.data().evolutionChain) {
+  // Se o documento existe E já tem evolutionChain e kantoLocations, então está completo
+  if (docSnap.exists() && docSnap.data().evolutionChain && docSnap.data().kantoLocations) {
     console.log("Pokémon COMPLETO encontrado no cache do Firestore!");
     return docSnap.data() as PokemonDetailsData;
   }
@@ -101,17 +117,17 @@ export async function fetchPokemonDetails(
   // Se não existe ou está incompleto, busca e atualiza
   console.log("Pokémon não encontrado ou incompleto no cache. Buscando/Atualizando...");
 
-  console.log("Pokémon não encontrado no cache. Buscando na PokeAPI...");
-
   // Chamadas paralelas para otimizar o tempo de busca
-  const [pokemonResponse, speciesResponse] = await Promise.all([
+  const [pokemonResponse, speciesResponse, encountersResponse] = await Promise.all([
     fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonId}`),
     fetch(`https://pokeapi.co/api/v2/pokemon-species/${pokemonId}`),
+    fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonId}/encounters`),
   ]);
 
   const pokemonData = await pokemonResponse.json();
   const speciesData = await speciesResponse.json();
-  
+  const encountersData = await encountersResponse.json();
+
   // --- Processamento dos Dados ---
 
   const types = pokemonData.types.map((t: any) => t.type.name);
@@ -141,6 +157,22 @@ export async function fetchPokemonDetails(
     (entry: any) => entry.language.name === "en"
   );
 
+  // NOVA LÓGICA para filtrar locais de Kanto
+  const kantoGames = ["red", "blue", "yellow"];
+  const kantoLocations: { version: string; locations: string[] }[] = [];
+
+  kantoGames.forEach(game => {
+    const locationsForGame = encountersData
+      .filter((encounter: any) => encounter.version_details.some((vd: any) => vd.version.name === game))
+      .map((encounter: any) => encounter.location_area.name.replace(/-/g, ' '));
+    if (locationsForGame.length > 0) {
+      kantoLocations.push({
+        version: game,
+        locations: [...new Set(locationsForGame as string[])] // Corrigido para garantir string[]
+      });
+    }
+  });
+
   const standardizedData: PokemonDetailsData = {
     id: pokemonData.id,
     name: pokemonData.name,
@@ -153,12 +185,13 @@ export async function fetchPokemonDetails(
     })),
     pokedexDescription:
       flavorTextEntry?.flavor_text.replace(/\s+/g, " ") || "No description available.",
-    evolutionChain, // Salva o array processado
-    damageRelations: { // Salva as novas relações de dano
-        weaknesses: Array.from(weaknesses),
-        resistances: Array.from(resistances),
-        immunities: Array.from(immunities),
-    }
+    evolutionChain,
+    damageRelations: {
+      weaknesses: Array.from(weaknesses),
+      resistances: Array.from(resistances),
+      immunities: Array.from(immunities),
+    },
+    kantoLocations: kantoLocations.length > 0 ? kantoLocations : undefined,
   };
 
   await setDoc(pokemonDocRef, standardizedData);

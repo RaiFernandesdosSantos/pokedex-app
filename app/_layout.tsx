@@ -23,7 +23,7 @@
  * Sugestão:
  *   - Mantenha a lógica de autenticação centralizada aqui para evitar bugs de navegação.
  */
-
+import "@/assets/style/unistyles";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PokemonTeamProvider } from "@/context/PokemonTeamContext";
