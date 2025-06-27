@@ -1,9 +1,18 @@
 import { Drawer } from "expo-router/drawer";
+import { DrawerToggleButton } from "@react-navigation/drawer";
+import { useAuth } from "@/context/AuthContext";
 
 export default function DrawerLayout() {
+  const { logout } = useAuth();
+
   return (
-    <Drawer screenOptions={{ headerShown: false }}>
-      {/* Definimos as telas e os títulos que o Stack pai irá usar */}
+    <Drawer
+      screenOptions={{
+        drawerPosition: "right",
+        // Pede ao Stack para mostrar um botão de menu à direita
+        headerRight: () => <DrawerToggleButton tintColor="#fff" />,
+      }}
+    >
       <Drawer.Screen
         name="index"
         options={{
@@ -25,8 +34,7 @@ export default function DrawerLayout() {
           drawerLabel: "Líderes de Ginásio",
         }}
       />
-      {/* A tela de logout será removida daqui, pois o logout é uma ação, não uma tela.
-          Vamos colocar o botão "Sair" diretamente no menu. */}
+      {/* O logout agora é uma ação, não uma tela. Vamos colocá-lo no `perfil.tsx` */}
     </Drawer>
   );
 }
