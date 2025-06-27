@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import {
   View,
   Text,
@@ -19,6 +21,7 @@ import {
 } from "@/services/pokemonService";
 import { getTypeColor, styles } from "@/assets/style/DetalhesStyle";
 import { theme } from "@/assets/style/theme";
+import PokeballBg from "@/assets/icons/PokeballBg";
 
 export default function PokemonDetails() {
   const { pokemonId } = useLocalSearchParams<{ pokemonId: string }>();
@@ -27,6 +30,7 @@ export default function PokemonDetails() {
   const [debugMessage, setDebugMessage] = useState<string>("Initializing...");
   const { addToTeam } = usePokemonTeam();
   const navigation = useNavigation();
+  const [showLocations, setShowLocations] = useState(false);
 
   useEffect(() => {
     async function loadPokemonDetails() {
@@ -83,34 +87,83 @@ export default function PokemonDetails() {
 
   // Cor dinâmica do topo
   const primaryType = pokemon.types[0];
-  const typeColor = (theme.colors as Record<string, string>)[
-    `pokemonType${primaryType.charAt(0).toUpperCase() + primaryType.slice(1)}`
-  ] || theme.colors.grayscaleBackground;
+  const typeColor =
+    (theme.colors as Record<string, string>)[
+      `pokemonType${primaryType.charAt(0).toUpperCase() + primaryType.slice(1)}`
+    ] || theme.colors.grayscaleBackground;
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: theme.colors.grayscaleBackground }}>
+    <ScrollView
+      style={{ flex: 1, backgroundColor: theme.colors.grayscaleBackground }}
+    >
       {/* Topo colorido dinâmico */}
-      <View style={{
-        height: 220,
-        backgroundColor: typeColor,
-        borderBottomLeftRadius: 32,
-        borderBottomRightRadius: 32,
-        paddingHorizontal: 20,
-        paddingTop: 40,
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-      }}>
+      <View
+        style={{
+          height: 220,
+          backgroundColor: typeColor,
+          borderBottomLeftRadius: 32,
+          borderBottomRightRadius: 32,
+          paddingHorizontal: 20,
+          paddingTop: 40,
+          alignItems: "center",
+          justifyContent: "flex-end",
+          position: "relative",
+        }}
+      >
+        {/* SVG Pokeball de fundo */}
+        <View
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            top: 30,
+            alignItems: "center",
+            zIndex: 1,
+          }}
+        >
+          <PokeballBg width={120} height={120} />
+        </View>
         {/* Nome e número */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', width: '100%', justifyContent: 'space-between', zIndex: 2 }}>
-          <Text style={{ color: theme.colors.grayscaleWhite, fontSize: 28, fontWeight: 'bold', textTransform: 'capitalize' }}>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            width: "100%",
+            justifyContent: "space-between",
+            zIndex: 2,
+          }}
+        >
+          <Text
+            style={{
+              color: theme.colors.grayscaleWhite,
+              fontSize: 28,
+              fontWeight: "bold",
+              textTransform: "capitalize",
+            }}
+          >
             {pokemon.name}
           </Text>
-          <Text style={{ color: theme.colors.grayscaleWhite, fontSize: 16, fontWeight: 'bold' }}>
-            #{String(pokemon.id).padStart(3, '0')}
+          <Text
+            style={{
+              color: theme.colors.grayscaleWhite,
+              fontSize: 16,
+              fontWeight: "bold",
+            }}
+          >
+            #{String(pokemon.id).padStart(3, "0")}
           </Text>
         </View>
         {/* Imagem sobreposta */}
-        <View style={{ position: 'absolute', left: 0, right: 0, bottom: -70, alignItems: 'center', zIndex: 3 }}>
+        <View
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            bottom: -70,
+            alignItems: "center",
+            zIndex: 3,
+          }}
+        >
           <Image
             style={{
               width: 140,
@@ -122,21 +175,47 @@ export default function PokemonDetails() {
       </View>
 
       {/* Card branco sobreposto */}
-      <View style={{
-        marginTop: 80,
-        marginHorizontal: 16,
-        backgroundColor: theme.colors.grayscaleWhite,
-        borderRadius: 16,
-        padding: 20,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 8,
-        elevation: 2,
-        zIndex: 1,
-      }}>
+      <View
+        style={{
+          marginTop: 80,
+          marginHorizontal: 16,
+          backgroundColor: theme.colors.grayscaleWhite,
+          borderRadius: 16,
+          padding: 20,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.08,
+          shadowRadius: 8,
+          elevation: 2,
+          zIndex: 1,
+        }}
+      >
+        {/* Bloco de Mensagem de Obtenção/Raridade */}
+        <View style={localStylesExtended.infoMessageContainer}>
+          {pokemon.rarity === "mythical" ? (
+            <Text style={localStylesExtended.infoMessageText}>
+              Este Pokémon é Mítico e só pode ser obtido por evento especial.
+            </Text>
+          ) : pokemon.rarity === "legendary" ? (
+            <Text style={localStylesExtended.infoMessageText}>
+              Este Pokémon é Lendário e só pode ser encontrado em um local
+              único.
+            </Text>
+          ) : pokemon.kantoLocations && pokemon.kantoLocations.length === 0 ? (
+            <Text style={localStylesExtended.infoMessageText}>
+              Este Pokémon não é encontrado na natureza em Kanto (obtido por
+              evolução/troca).
+            </Text>
+          ) : null}
+        </View>
         {/* Tipos */}
-        <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 12 }}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "center",
+            marginBottom: 12,
+          }}
+        >
           {pokemon.types.map((type) => (
             <TypeBadge key={type} typeName={type} />
           ))}
@@ -224,6 +303,42 @@ export default function PokemonDetails() {
             </Text>
           </View>
         </View>
+        {/* --- SEÇÃO DE LOCAIS DE ENCONTRO (NOVA LÓGICA) --- */}
+        {pokemon.kantoLocations && pokemon.kantoLocations.length > 0 && (
+          <View style={styles.section}>
+            <View style={localStylesExtended.locationHeader}>
+              <Text style={styles.sectionTitle}>Onde Encontrar em Kanto</Text>
+              <TouchableOpacity
+                onPress={() => setShowLocations(!showLocations)}
+              >
+                <Ionicons
+                  name={showLocations ? "eye-off-outline" : "eye-outline"}
+                  size={24}
+                  color={theme.colors.identityPrimary}
+                />
+              </TouchableOpacity>
+            </View>
+            {showLocations &&
+              pokemon.kantoLocations.map((gameData) => (
+                <View
+                  key={gameData.version}
+                  style={localStylesExtended.locationGroup}
+                >
+                  <Text style={localStylesExtended.gameVersionText}>
+                    {gameData.version.toUpperCase()}
+                  </Text>
+                  {gameData.locations.map((location) => (
+                    <Text
+                      key={location}
+                      style={localStylesExtended.locationText}
+                    >
+                      - {location}
+                    </Text>
+                  ))}
+                </View>
+              ))}
+          </View>
+        )}
       </View>
     </ScrollView>
   );
@@ -261,5 +376,38 @@ const localStylesExtended = StyleSheet.create({
     fontFamily: "monospace",
     fontSize: 14,
     color: "#333",
+  },
+  infoMessageContainer: {
+    padding: 10,
+    backgroundColor: theme.colors.grayscaleLight,
+    borderRadius: 8,
+    marginBottom: 16,
+    alignItems: "center",
+  },
+  infoMessageText: {
+    color: theme.colors.grayscaleDark,
+    fontWeight: "bold",
+    textAlign: "center",
+    fontSize: 14,
+  },
+  locationHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  locationGroup: {
+    marginBottom: 10,
+  },
+  gameVersionText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    textTransform: "capitalize",
+    color: "#333",
+  },
+  locationText: {
+    fontSize: 14,
+    color: "#555",
+    marginLeft: 10,
   },
 });

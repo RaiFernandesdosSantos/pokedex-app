@@ -26,6 +26,7 @@ import { View, Text, Image } from "react-native";
 import TypeBadge from "./TypeBadge";
 import { createStyleSheet, useStyles } from "react-native-unistyles";
 import { theme } from "../style/theme";
+import PokeballBg from "@/assets/icons/PokeballBg";
 
 type CardPokemonProps = {
   number: number;
@@ -51,8 +52,29 @@ export default function CardPokemon({
   return (
     <View style={styles.root}>
       {/* Topo colorido e imagem sobreposta */}
-      <View style={[styles.top, { backgroundColor: typeColor }]}>
-        <Image style={styles.image} source={{ uri: imageUrl }} />
+      <View
+        style={[
+          styles.top,
+          { backgroundColor: typeColor, position: "relative" },
+        ]}
+      >
+        {/* SVG Pokeball de fundo */}
+        <PokeballBg
+          width={80}
+          height={80}
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: [{ translateX: -40 }, { translateY: -40 }],
+            opacity: 0.18,
+            zIndex: 1,
+          }}
+        />
+        <Image
+          style={[styles.image, { zIndex: 2 }]}
+          source={{ uri: imageUrl }}
+        />
       </View>
       {/* Card branco sobreposto */}
       <View style={styles.card}>

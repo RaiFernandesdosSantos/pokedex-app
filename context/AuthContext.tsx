@@ -31,15 +31,23 @@ import {
   createUserWithEmailAndPassword,
   signOut,
   User,
+  updateProfile,
 } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "@/config/firebaseConfig";
 
 // Define o tipo do contexto
 export type AuthContextType = {
   user: User | null;
   isInitialized: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string) => Promise<void>;
+  register: (
+    email: string,
+    password: string,
+    displayName?: string
+  ) => Promise<void>;
   logout: () => Promise<void>;
+  updateProfileName: (displayName: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -64,8 +72,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   // Função de cadastro
-  const register = async (email: string, password: string) => {
-    await createUserWithEmailAndPassword(auth, email, password);
+  const register = async (
+    email: string,
+    password: string,
+    displayName?: string
+  ) => {
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+    const user = userCredential.user;
+    await setDoc(doc(db, "users", user.uid), {
+      email: user.email,
+      displayName: displayName || "",
+    });
+    if (displayName) {
+      await updateProfile(user, { displayName });
+    }
+  };
+
+  // Função para atualizar o nome do perfil
+  const updateProfileName = async (displayName: string) => {
+    if (!auth.currentUser) return;
+    await updateProfile(auth.currentUser, { displayName });
+    await setDoc(
+      doc(db, "users", auth.currentUser.uid),
+      { displayName },
+      { merge: true }
+    );
   };
 
   // Função de logout
@@ -75,7 +110,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, isInitialized, login, register, logout }}
+      value={{
+        user,
+        isInitialized,
+        login,
+        register,
+        logout,
+        updateProfileName,
+      }}
     >
       {children}
     </AuthContext.Provider>

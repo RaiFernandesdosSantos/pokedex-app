@@ -23,16 +23,15 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDAMvsLpTBBiPb1VuULQ2I2T6Uw7-F6lSE", // Mantenha sua chave aqui
+  apiKey: "AIzaSyCa9RiSyqvBPvLBoeKFboDzB7rQrwy7hVw", // do google-services.json
   authDomain: "pokedex-app-77b46.firebaseapp.com",
   projectId: "pokedex-app-77b46",
   storageBucket: "pokedex-app-77b46.firebasestorage.app",
   messagingSenderId: "503439687847",
-  appId: "1:503439687847:web:fbf9543bccc3296c5c5b82",
-  measurementId: "G-1Q4Y647D6C"
+  appId: "1:503439687847:android:60c320c4506ca8ab5c5b82"
+  // Não precisa de measurementId para Android
 };
 
-// Verificamos se o app já foi inicializado para evitar erros de HMR (Hot Module Replacement)
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 const auth = getAuth(app);

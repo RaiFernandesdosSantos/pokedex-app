@@ -69,6 +69,7 @@ export type PokemonDetailsData = {
     version: string;
     locations: string[];
   }[];
+  rarity: 'common' | 'legendary' | 'mythical'; // Novo campo
 };
 
 // --- FUNÇÕES DO SERVIÇO ---
@@ -191,7 +192,8 @@ export async function fetchPokemonDetails(
       resistances: Array.from(resistances),
       immunities: Array.from(immunities),
     },
-    kantoLocations: kantoLocations.length > 0 ? kantoLocations : undefined,
+    kantoLocations: kantoLocations, // Sempre salva como array (pode ser vazio)
+    rarity: speciesData.is_legendary ? 'legendary' : speciesData.is_mythical ? 'mythical' : 'common', // Novo campo
   };
 
   await setDoc(pokemonDocRef, standardizedData);

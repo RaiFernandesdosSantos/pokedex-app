@@ -33,15 +33,6 @@ export default function HomeScreen() {
     pokemon.name.toLowerCase().includes(searchText.toLowerCase())
   );
 
-  const handleProfileOrLogin = () => {
-    if (user) {
-      // If logged in, navigate to profile screen
-      router.push("/(drawer)/perfil");
-    } else {
-      router.push("/login");
-    }
-  };
-
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -59,14 +50,6 @@ export default function HomeScreen() {
           value={searchText}
           onChangeText={setSearchText}
         />
-        <TouchableOpacity
-          style={localStyles.profileButton}
-          onPress={handleProfileOrLogin}
-        >
-          <Text style={localStyles.profileButtonText}>
-            {user ? "Perfil" : "Login"}
-          </Text>
-        </TouchableOpacity>
       </View>
       <FlatList
         data={filtrados}
@@ -98,21 +81,5 @@ const localStyles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     backgroundColor: "rgb(228, 227, 231)", // Light gray background as per theme
-  },
-  profileButton: {
-    backgroundColor: "rgb(206, 52, 58)", // Red as per theme
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    marginLeft: 10,
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  profileButtonText: {
-    color: "#FFF",
-    fontWeight: "bold",
-    fontSize: 14,
   },
 });

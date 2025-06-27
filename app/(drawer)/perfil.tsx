@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,18 +6,28 @@ import {
   StyleSheet,
   FlatList,
   ActivityIndicator,
+  Modal,
+  TextInput,
+  Button,
 } from "react-native";
 import { useAuth } from "@/context/AuthContext";
 import { usePokemonTeam, TeamPokemon } from "@/context/PokemonTeamContext";
 import CardPokemon from "@/assets/components/CardPokemon";
 
 export default function PerfilScreen() {
-  const { user, logout } = useAuth();
+  const { user, logout, updateProfileName } = useAuth();
   const { team, isLoadingTeam, removeFromTeam } = usePokemonTeam();
+  const [modalVisible, setModalVisible] = useState(!user?.displayName);
+  const [name, setName] = useState("");
 
   if (!user) {
     return null;
   }
+
+  const handleSave = async () => {
+    await updateProfileName(name);
+    setModalVisible(false);
+  };
 
   const renderTeamMember = ({ item }: { item: TeamPokemon }) => (
     <View style={styles.cardWrapper}>
@@ -38,12 +48,57 @@ export default function PerfilScreen() {
 
   return (
     <View style={styles.container}>
+      <Modal visible={modalVisible} transparent animationType="slide">
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "#0008",
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: "#fff",
+              padding: 24,
+              borderRadius: 12,
+              width: 300,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: "bold",
+                marginBottom: 12,
+              }}
+            >
+              Escolha seu nome de treinador
+            </Text>
+            <TextInput
+              placeholder="Nome de treinador"
+              value={name}
+              onChangeText={setName}
+              style={{
+                borderWidth: 1,
+                borderColor: "#ccc",
+                borderRadius: 8,
+                padding: 8,
+                marginBottom: 16,
+              }}
+            />
+            <Button title="Salvar" onPress={handleSave} />
+          </View>
+        </View>
+      </Modal>
       <View style={styles.header}>
         <Text style={styles.title}>Perfil do Treinador</Text>
         <TouchableOpacity style={styles.logoutButton} onPress={logout}>
           <Text style={styles.logoutButtonText}>Sair</Text>
         </TouchableOpacity>
       </View>
+      {user.displayName && (
+        <Text style={styles.displayName}>Treinador: {user.displayName}</Text>
+      )}
       <Text style={styles.email}>Email: {user.email}</Text>
       <Text style={styles.sectionTitle}>Meu Time</Text>
       {isLoadingTeam ? (
@@ -92,6 +147,13 @@ const styles = StyleSheet.create({
   logoutButtonText: {
     color: "#FFF",
     fontWeight: "bold",
+  },
+  displayName: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#c2343a",
+    marginBottom: 4,
+    textAlign: "left",
   },
   email: {
     fontSize: 16,

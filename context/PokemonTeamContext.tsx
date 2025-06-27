@@ -50,13 +50,29 @@ export type TeamPokemon = {
   name: string;
   imageUrl: string;
   types: string[];
+  level: number; // Novo campo
+  ability: string; // Novo campo
+  heldItem?: string; // Novo campo (opcional)
+  moves: string[]; // Novo campo (até 4 golpes)
 };
+
+// Função para calcular stats baseado no nível
+function calculateStat(base: number, level: number, statName: string): number {
+  if (statName.toLowerCase() === "hp") {
+    return Math.floor((2 * base * level) / 100) + level + 10;
+  }
+  return Math.floor((2 * base * level) / 100) + 5;
+}
 
 type PokemonTeamContextType = {
   team: TeamPokemon[];
   isLoadingTeam: boolean;
   addToTeam: (pokemon: PokemonDetailsData) => Promise<void>;
   removeFromTeam: (pokemonId: number) => void;
+  updateTeamMember: (
+    pokemonId: number,
+    updates: Partial<TeamPokemon>
+  ) => Promise<void>; // Novo método
 };
 
 const PokemonTeamContext = createContext<PokemonTeamContextType | undefined>(
@@ -96,12 +112,16 @@ export const PokemonTeamProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    // Cria o objeto limpo e padronizado
+    // Cria o objeto limpo e padronizado com campos estratégicos
     const pokemonToAdd: TeamPokemon = {
       id: pokemon.id,
       name: pokemon.name,
       imageUrl: pokemon.imageUrl,
       types: pokemon.types,
+      level: 5, // Valor padrão
+      ability: pokemon.abilities[0] || "", // Primeira habilidade
+      heldItem: undefined, // Nenhum item por padrão
+      moves: pokemon.stats ? pokemon.stats.slice(0, 4).map((s) => s.name) : [], // Usando nomes dos stats como placeholder para golpes
     };
 
     const userDocRef = doc(db, "users", user.uid);
@@ -111,6 +131,28 @@ export const PokemonTeamProvider = ({ children }: { children: ReactNode }) => {
       { team: arrayUnion(pokemonToAdd) },
       { merge: true }
     );
+  };
+
+  // Função para atualizar membro do time
+  const updateTeamMember = async (
+    pokemonId: number,
+    updates: Partial<TeamPokemon>
+  ) => {
+    if (!user) return;
+    const userDocRef = doc(db, "users", user.uid);
+    const member = team.find((p) => p.id === pokemonId);
+    if (!member) return;
+    const updatedMember = { ...member, ...updates };
+    setTeam((prev) =>
+      prev.map((p) => (p.id === pokemonId ? updatedMember : p))
+    );
+    // Remove o antigo e adiciona o novo no Firestore
+    await updateDoc(userDocRef, {
+      team: arrayRemove(member),
+    });
+    await updateDoc(userDocRef, {
+      team: arrayUnion(updatedMember),
+    });
   };
 
   const removeFromTeam = async (pokemonId: number) => {
@@ -125,7 +167,13 @@ export const PokemonTeamProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <PokemonTeamContext.Provider
-      value={{ team, isLoadingTeam, addToTeam, removeFromTeam }}
+      value={{
+        team,
+        isLoadingTeam,
+        addToTeam,
+        removeFromTeam,
+        updateTeamMember,
+      }}
     >
       {children}
     </PokemonTeamContext.Provider>

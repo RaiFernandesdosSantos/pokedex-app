@@ -23,13 +23,14 @@
  * Sugestão:
  *   - Mantenha a lógica de autenticação centralizada aqui para evitar bugs de navegação.
  */
-import "@/assets/style/unistyles";
+import "@/assets/style/unistyles"; // Ativa o tema
 import { Stack, useRouter, useSegments } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PokemonTeamProvider } from "@/context/PokemonTeamContext";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { useEffect } from "react";
 import { View, ActivityIndicator } from "react-native";
+import { DrawerToggleButton } from "@react-navigation/drawer";
 
 const InitialLayout = () => {
   const { user, isInitialized } = useAuth();
@@ -38,8 +39,6 @@ const InitialLayout = () => {
 
   useEffect(() => {
     if (!isInitialized) return;
-
-    // Define rotas públicas
     const inAuthGroup = segments[0] === "login" || segments[0] === "register";
 
     if (user && inAuthGroup) {
@@ -49,7 +48,6 @@ const InitialLayout = () => {
     }
   }, [user, isInitialized, segments]);
 
-  // Enquanto o Firebase verifica o estado de auth, mostramos um loading
   if (!isInitialized) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -58,20 +56,20 @@ const InitialLayout = () => {
     );
   }
 
-  // O Stack agora declara TODAS as rotas incondicionalmente
+  // A MÁGICA ACONTECE AQUI!
   return (
     <Stack
       screenOptions={{
-        headerStyle: {
-          backgroundColor: "#f4511e", // Cor de exemplo para o header
-        },
-        headerTintColor: "#fff", // Cor do texto e botão de voltar
-        headerTitleStyle: {
-          fontWeight: "bold",
-        },
+        headerStyle: { backgroundColor: "#f4511e" },
+        headerTintColor: "#fff",
+        headerTitleStyle: { fontWeight: "bold" },
+        // Adiciona o botão do drawer à direita em TODAS as telas do Stack
+        headerRight: () => <DrawerToggleButton tintColor="#fff" />,
       }}
     >
+      {/* O Stack agora mostra seu próprio header para as telas do drawer */}
       <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+
       <Stack.Screen
         name="[pokemonId]"
         options={{ title: "Detalhes do Pokémon" }}
@@ -84,7 +82,6 @@ const InitialLayout = () => {
 
 export default function RootLayout() {
   return (
-    // Os providers ficam aqui para envolver todo o app
     <AuthProvider>
       <PokemonTeamProvider>
         <GestureHandlerRootView style={{ flex: 1 }}>
