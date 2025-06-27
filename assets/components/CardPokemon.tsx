@@ -22,8 +22,10 @@
  */
 
 import React from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, Image } from "react-native";
 import TypeBadge from "./TypeBadge";
+import { createStyleSheet, useStyles } from "react-native-unistyles";
+import { theme } from "../style/theme";
 
 type CardPokemonProps = {
   number: number;
@@ -38,55 +40,98 @@ export default function CardPokemon({
   types,
   imageUrl,
 }: CardPokemonProps) {
+  const { styles } = useStyles(stylesheet);
+  // Cor dinâmica do topo do card
+  const primaryType = types[0];
+  const typeColor =
+    (theme.colors as Record<string, string>)[
+      `pokemonType${primaryType.charAt(0).toUpperCase() + primaryType.slice(1)}`
+    ] || theme.colors.grayscaleBackground;
+
   return (
-    <View style={styles.card}>
-      <Image style={styles.image} source={{ uri: imageUrl }} />
-      <View style={styles.infoContainer}>
-        <Text style={styles.number}>#{number}</Text>
-        <View style={styles.details}>
+    <View style={styles.root}>
+      {/* Topo colorido e imagem sobreposta */}
+      <View style={[styles.top, { backgroundColor: typeColor }]}>
+        <Image style={styles.image} source={{ uri: imageUrl }} />
+      </View>
+      {/* Card branco sobreposto */}
+      <View style={styles.card}>
+        <View style={styles.header}>
           <Text style={styles.name}>{name}</Text>
-          <View style={styles.typesContainer}>
-            {types.map((type) => (
-              <TypeBadge key={type} typeName={type} />
-            ))}
-          </View>
+          <Text style={styles.number}>#{String(number).padStart(3, "0")}</Text>
+        </View>
+        <View style={styles.typesContainer}>
+          {types.map((type) => (
+            <TypeBadge key={type} typeName={type} />
+          ))}
         </View>
       </View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: "#f2f2f2",
-    borderRadius: 8,
-    padding: 10,
-    marginVertical: 8,
+const stylesheet = createStyleSheet((theme) => ({
+  root: {
+    width: 160,
+    margin: 8,
+  },
+  top: {
+    height: 80,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
     alignItems: "center",
+    justifyContent: "center",
+    zIndex: 2,
   },
   image: {
-    width: 120,
-    height: 120,
-    marginBottom: 10,
+    width: 96,
+    height: 96,
+    marginTop: 8,
+    marginBottom: -32, // Sobrepõe a imagem ao card
+    zIndex: 3,
   },
-  infoContainer: {
+  card: {
+    backgroundColor: theme.colors.grayscaleWhite,
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    paddingTop: 40,
+    paddingBottom: 16,
+    paddingHorizontal: 12,
+    alignItems: "center",
+    marginTop: -32, // Sobrepõe o card ao topo colorido
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
+    zIndex: 1,
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     width: "100%",
-    alignItems: "center",
-  },
-  number: {
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-  details: {
-    alignItems: "center",
+    marginBottom: 8,
   },
   name: {
     fontSize: 18,
-    marginBottom: 5,
+    fontWeight: "bold",
+    color: theme.colors.grayscaleDark,
+    flex: 1,
+    textTransform: "capitalize",
+  },
+  number: {
+    fontWeight: "bold",
+    fontSize: 14,
+    color: theme.colors.grayscaleMedium,
+    marginLeft: 8,
   },
   typesContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
+    marginTop: 4,
   },
-});
+}));

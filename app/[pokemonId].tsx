@@ -18,6 +18,7 @@ import {
   PokemonDetailsData,
 } from "@/services/pokemonService";
 import { getTypeColor, styles } from "@/assets/style/DetalhesStyle";
+import { theme } from "@/assets/style/theme";
 
 export default function PokemonDetails() {
   const { pokemonId } = useLocalSearchParams<{ pokemonId: string }>();
@@ -80,88 +81,148 @@ export default function PokemonDetails() {
     );
   }
 
+  // Cor dinâmica do topo
+  const primaryType = pokemon.types[0];
+  const typeColor = (theme.colors as Record<string, string>)[
+    `pokemonType${primaryType.charAt(0).toUpperCase() + primaryType.slice(1)}`
+  ] || theme.colors.grayscaleBackground;
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={localStyles.debugText}>{debugMessage}</Text>
-      <Image style={styles.image} source={{ uri: pokemon.imageUrl }} />
-      <Text style={styles.title}>{pokemon.name}</Text>
-      <View style={{ marginTop: 20 }}>
-        <Button
-          title="Adicionar ao Time"
-          onPress={() => {
-            addToTeam(pokemon);
-            navigation.goBack();
-          }}
-        />
+    <ScrollView style={{ flex: 1, backgroundColor: theme.colors.grayscaleBackground }}>
+      {/* Topo colorido dinâmico */}
+      <View style={{
+        height: 220,
+        backgroundColor: typeColor,
+        borderBottomLeftRadius: 32,
+        borderBottomRightRadius: 32,
+        paddingHorizontal: 20,
+        paddingTop: 40,
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+      }}>
+        {/* Nome e número */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', width: '100%', justifyContent: 'space-between', zIndex: 2 }}>
+          <Text style={{ color: theme.colors.grayscaleWhite, fontSize: 28, fontWeight: 'bold', textTransform: 'capitalize' }}>
+            {pokemon.name}
+          </Text>
+          <Text style={{ color: theme.colors.grayscaleWhite, fontSize: 16, fontWeight: 'bold' }}>
+            #{String(pokemon.id).padStart(3, '0')}
+          </Text>
+        </View>
+        {/* Imagem sobreposta */}
+        <View style={{ position: 'absolute', left: 0, right: 0, bottom: -70, alignItems: 'center', zIndex: 3 }}>
+          <Image
+            style={{
+              width: 140,
+              height: 140,
+            }}
+            source={{ uri: pokemon.imageUrl }}
+          />
+        </View>
       </View>
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Tipos:</Text>
-        <View style={styles.typesContainer}>
+
+      {/* Card branco sobreposto */}
+      <View style={{
+        marginTop: 80,
+        marginHorizontal: 16,
+        backgroundColor: theme.colors.grayscaleWhite,
+        borderRadius: 16,
+        padding: 20,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+        elevation: 2,
+        zIndex: 1,
+      }}>
+        {/* Tipos */}
+        <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 12 }}>
           {pokemon.types.map((type) => (
             <TypeBadge key={type} typeName={type} />
           ))}
         </View>
-      </View>
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Habilidades:</Text>
-        {pokemon.abilities.map((ability) => (
-          <Text key={ability} style={styles.textItem}>
-            {ability}
-          </Text>
-        ))}
-      </View>
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Estatísticas:</Text>
-        {pokemon.stats.map((stat) => (
-          <StatBar key={stat.name} statName={stat.name} value={stat.base_stat} />
-        ))}
-      </View>
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Evoluções:</Text>
-        <FlatList
-          horizontal
-          data={pokemon.evolutionChain}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item, index }) => (
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <EvolutionStage {...item} />
-              {index < pokemon.evolutionChain.length - 1 && (
-                <Text style={{ fontSize: 24, marginHorizontal: 10 }}>→</Text>
-              )}
-            </View>
-          )}
-        />
-      </View>
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Fraquezas (Dano x2):</Text>
-        <View style={localStylesExtended.typeGrid}>
-          {pokemon.damageRelations.weaknesses.map((type) => (
-            <TypeBadge key={type} typeName={type} />
+        {/* Botão Adicionar ao Time */}
+        <View style={{ marginTop: 10, marginBottom: 10 }}>
+          <Button
+            title="Adicionar ao Time"
+            onPress={() => {
+              addToTeam(pokemon);
+              navigation.goBack();
+            }}
+          />
+        </View>
+        {/* Habilidades */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Habilidades:</Text>
+          {pokemon.abilities.map((ability) => (
+            <Text key={ability} style={styles.textItem}>
+              {ability}
+            </Text>
           ))}
         </View>
-      </View>
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Resistências (Dano x0.5):</Text>
-        <View style={localStylesExtended.typeGrid}>
-          {pokemon.damageRelations.resistances.map((type) => (
-            <TypeBadge key={type} typeName={type} />
+        {/* Estatísticas */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Estatísticas:</Text>
+          {pokemon.stats.map((stat) => (
+            <StatBar
+              key={stat.name}
+              statName={stat.name}
+              value={stat.base_stat}
+            />
           ))}
         </View>
-      </View>
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Imunidades (Dano x0):</Text>
-        <View style={localStylesExtended.typeGrid}>
-          {pokemon.damageRelations.immunities.map((type) => (
-            <TypeBadge key={type} typeName={type} />
-          ))}
+        {/* Evoluções */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Evoluções:</Text>
+          <FlatList
+            horizontal
+            data={pokemon.evolutionChain}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item, index }) => (
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <EvolutionStage {...item} />
+                {index < pokemon.evolutionChain.length - 1 && (
+                  <Text style={{ fontSize: 24, marginHorizontal: 10 }}>→</Text>
+                )}
+              </View>
+            )}
+          />
         </View>
-      </View>
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Descrição da Pokédex:</Text>
-        <View style={localStylesExtended.pokedexDescription}>
-          <Text style={localStylesExtended.pokedexText}>
-            {pokemon.pokedexDescription}
-          </Text>
+        {/* Fraquezas */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Fraquezas (Dano x2):</Text>
+          <View style={localStylesExtended.typeGrid}>
+            {pokemon.damageRelations.weaknesses.map((type) => (
+              <TypeBadge key={type} typeName={type} />
+            ))}
+          </View>
+        </View>
+        {/* Resistências */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Resistências (Dano x0.5):</Text>
+          <View style={localStylesExtended.typeGrid}>
+            {pokemon.damageRelations.resistances.map((type) => (
+              <TypeBadge key={type} typeName={type} />
+            ))}
+          </View>
+        </View>
+        {/* Imunidades */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Imunidades (Dano x0):</Text>
+          <View style={localStylesExtended.typeGrid}>
+            {pokemon.damageRelations.immunities.map((type) => (
+              <TypeBadge key={type} typeName={type} />
+            ))}
+          </View>
+        </View>
+        {/* Descrição da Pokédex */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Descrição da Pokédex:</Text>
+          <View style={localStylesExtended.pokedexDescription}>
+            <Text style={localStylesExtended.pokedexText}>
+              {pokemon.pokedexDescription}
+            </Text>
+          </View>
         </View>
       </View>
     </ScrollView>
