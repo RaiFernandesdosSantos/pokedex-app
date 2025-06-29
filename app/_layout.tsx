@@ -1,11 +1,9 @@
-import "@/assets/style/unistyles";
+//import "@/assets/style/unistyles";
 import { Stack } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PokemonTeamProvider } from "@/context/PokemonTeamContext";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
-import { useEffect } from "react";
 import { View, ActivityIndicator } from "react-native";
-import { DrawerToggleButton } from "@react-navigation/drawer";
 import AuthRedirect from "@/assets/components/AuthRedirect"; // Vamos criar este componente
 
 // Este componente lida apenas com a lógica de redirecionamento
