@@ -3,19 +3,9 @@
  *
  * Configuração e inicialização do Firebase para o app.
  *
- * Propósito:
- *   - Centraliza a configuração do Firebase (Auth e Firestore).
- *   - Evita múltiplas inicializações do app em ambiente de desenvolvimento.
+ * Exporta instâncias de auth e db para uso global.
  *
- * Integração:
- *   - Importe { auth, db } deste arquivo para usar autenticação e banco de dados.
- *
- * Exemplo de uso:
- *   import { auth, db } from '@/config/firebaseConfig';
- *
- * Pontos de atenção:
- *   - Nunca exponha suas chaves em repositórios públicos.
- *   - O app é inicializado apenas uma vez, mesmo com HMR.
+ * Atenção: nunca exponha suas chaves em repositórios públicos.
  */
 
 import { initializeApp, getApp, getApps } from "firebase/app";

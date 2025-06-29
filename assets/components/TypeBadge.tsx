@@ -1,3 +1,14 @@
+/**
+ * TypeBadge.tsx
+ *
+ * Componente visual para exibir o tipo de um Pokémon como badge colorido.
+ *
+ * Props:
+ *   - typeName: nome do tipo (ex: 'fire', 'water')
+ *
+ * Usado em cards, detalhes e filtros.
+ */
+
 import React from "react";
 import { View, Text } from "react-native";
 import { createStyleSheet, useStyles } from "react-native-unistyles";

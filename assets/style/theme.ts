@@ -1,3 +1,11 @@
+/**
+ * theme.ts
+ *
+ * Tema central do app (cores, espaçamentos, etc), inspirado no Figma.
+ *
+ * Exporta o objeto theme para uso com Unistyles e componentes.
+ */
+
 // As cores que você encontrou no Figma, agora como um tema central.
 const palette = {
   identityPrimary: '#dc0a2d',

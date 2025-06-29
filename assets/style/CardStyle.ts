@@ -1,3 +1,11 @@
+/**
+ * CardStyle.ts
+ *
+ * Estilos para o componente CardPokemon.
+ *
+ * Define aparência de cards, imagem, nome, tipos, etc.
+ */
+
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({

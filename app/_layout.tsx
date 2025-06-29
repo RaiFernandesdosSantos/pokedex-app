@@ -3,12 +3,23 @@ import { Stack } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PokemonTeamProvider } from "@/context/PokemonTeamContext";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
-import { useEffect } from "react";
 import { View, ActivityIndicator } from "react-native";
-import { DrawerToggleButton } from "@react-navigation/drawer";
-import AuthRedirect from "@/assets/components/AuthRedirect"; // Vamos criar este componente
+import AuthRedirect from "@/assets/components/AuthRedirect";
 
-// Este componente lida apenas com a lógica de redirecionamento
+/**
+ * _layout.tsx (Root Layout)
+ *
+ * Responsável por:
+ *   - Inicializar provedores globais (Auth, Team, Unistyles, GestureHandler).
+ *   - Proteger rotas: redireciona usuários autenticados/deslogados para as telas corretas.
+ *   - Definir a navegação principal do app (Stack), incluindo o grupo (drawer) e telas públicas.
+ *   - Exibir um indicador de loading enquanto o estado de autenticação é resolvido.
+ *
+ * Observações:
+ *   - O Stack controla o cabeçalho global, exceto para o grupo (drawer), onde o header é ocultado.
+ *   - O AuthRedirect garante que apenas usuários autenticados acessem rotas privadas.
+ */
+
 const InitialLayout = () => {
   const { isInitialized } = useAuth();
 
@@ -20,20 +31,10 @@ const InitialLayout = () => {
     );
   }
 
+  // Stack simples, sem screenOptions complexos aqui
   return (
-    <Stack
-      screenOptions={{
-        headerStyle: { backgroundColor: "#f4511e" },
-        headerTintColor: "#fff",
-        headerTitleStyle: { fontWeight: "bold" },
-      }}
-    >
-      <Stack.Screen
-        name="(drawer)"
-        options={{
-          headerShown: false, // O Drawer terá seu próprio header customizado pelo Stack
-        }}
-      />
+    <Stack>
+      <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
       <Stack.Screen
         name="[pokemonId]"
         options={{ title: "Detalhes do Pokémon" }}

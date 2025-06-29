@@ -1,4 +1,11 @@
-// assets/style/unistyles.ts
+/**
+ * unistyles.ts
+ *
+ * Inicializa e registra o tema global do app usando react-native-unistyles.
+ *
+ * Permite uso de tokens de tema em todos os componentes.
+ */
+
 import { UnistylesRegistry } from 'react-native-unistyles';
 import { theme } from './theme';
 

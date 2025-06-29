@@ -1,3 +1,11 @@
+/**
+ * IndexStyle.ts
+ *
+ * Estilos para a tela de listagem de pokémons (Home/index.tsx).
+ *
+ * Define grid, cards, loading, e input de busca.
+ */
+
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({

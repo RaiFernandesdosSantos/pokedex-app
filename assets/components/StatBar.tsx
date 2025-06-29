@@ -1,3 +1,16 @@
+/**
+ * StatBar.tsx
+ *
+ * Componente visual para exibir uma barra de estatística de Pokémon.
+ *
+ * Props:
+ *   - statName: nome da estatística
+ *   - value: valor da estatística
+ *   - max: valor máximo (opcional, padrão 255)
+ *
+ * Usado na tela de detalhes para mostrar os stats base do Pokémon.
+ */
+
 import React from "react";
 import { View, Text } from "react-native";
 import { createStyleSheet, useStyles } from "react-native-unistyles";

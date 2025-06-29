@@ -3,22 +3,11 @@
  *
  * Componente visual para exibir um Pokémon em formato de card.
  *
- * Propósito:
- *   - Exibe imagem, nome, número e tipos do Pokémon.
- *   - Usado em listas, grids e telas de detalhes.
+ * - Exibe imagem, nome, número e tipos do Pokémon.
+ * - Usado em listas, grids e telas de detalhes.
+ * - Permite customização de clique ou ações extras via props.
  *
- * Integração:
- *   - Importe e use <CardPokemon ... /> nas telas que listam ou detalham Pokémon.
- *
- * Exemplo de uso:
- *   <CardPokemon number={25} name="pikachu" types={["electric"]} imageUrl={...} />
- *
- * Pontos de atenção:
- *   - O componente espera props bem formatadas (id, nome, tipos, url da imagem).
- *   - Os estilos podem ser customizados conforme o tema do app.
- *
- * Sugestão:
- *   - Permita customização de clique ou ações extras via props.
+ * Props esperadas: number, name, types, imageUrl.
  */
 
 import React from "react";

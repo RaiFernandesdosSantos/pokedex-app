@@ -1,23 +1,30 @@
+/**
+ * (drawer)/_layout.tsx
+ *
+ * Responsável por:
+ *   - Definir as telas do menu Drawer (Início, Perfil, Ginásios).
+ *   - NÃO controla cabeçalho, cor ou botão do Drawer (isso é feito pelo Stack em _layout.tsx).
+ *   - Apenas lista as rotas privadas do app.
+ *
+ * Observações:
+ *   - O headerShown, headerStyle, headerTintColor etc. podem ser removidos daqui para evitar conflito.
+ *   - O DrawerToggleButton deve ser controlado pelo Stack.
+ */
+
 import { Drawer } from "expo-router/drawer";
-import { DrawerToggleButton } from "@react-navigation/drawer";
-import { useAuth } from "@/context/AuthContext";
 
 export default function DrawerLayout() {
-  const { logout } = useAuth();
-
   return (
     <Drawer
       screenOptions={{
         drawerPosition: "right",
-        // Pede ao Stack para mostrar um botão de menu à direita
-        headerRight: () => <DrawerToggleButton tintColor="#fff" />,
       }}
     >
       <Drawer.Screen
         name="index"
         options={{
           title: "Pokédex Kanto",
-          drawerLabel: "Início",
+          drawerLabel: "Pokédex Kanto",
         }}
       />
       <Drawer.Screen
@@ -34,7 +41,6 @@ export default function DrawerLayout() {
           drawerLabel: "Líderes de Ginásio",
         }}
       />
-      {/* O logout agora é uma ação, não uma tela. Vamos colocá-lo no `perfil.tsx` */}
     </Drawer>
   );
 }

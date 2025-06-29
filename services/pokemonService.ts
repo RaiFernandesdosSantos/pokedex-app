@@ -1,37 +1,15 @@
 /**
  * pokemonService.ts
  *
- * Serviço para buscar dados de Pokémon da PokéAPI.
+ * Serviço para buscar dados de Pokémon da PokéAPI e enriquecer com Firestore.
  *
- * Propósito:
- *   - Fornece funções para buscar todos os Pokémon e detalhes individuais.
+ * - fetchAllPokemons: retorna lista básica de pokémons para listagem.
+ * - fetchPokemonDetails: retorna detalhes completos, incluindo cadeia evolutiva, fraquezas, descrição, locais de encontro e raridade.
+ * - Usa Firestore como cache para acelerar buscas e evitar requisições desnecessárias.
  *
- * Integração:
- *   - Importe e use fetchAllPokemons e fetchPokemonDetails nas telas que precisam de dados de Pokémon.
- *
- * Exemplo de uso:
- *   const pokemons = await fetchAllPokemons(151);
- *   const details = await fetchPokemonDetails(25);
- *
- * Pontos de atenção:
- *   - As funções são assíncronas e podem lançar erros de rede.
- *   - O fetchAllPokemons faz múltiplas requisições (uma para cada Pokémon).
- *   - Considere tratar loading e erros na UI.
- *
- * Sugestão:
- *   - Implemente cache ou paginação para melhorar performance.
- *
- * Detalhes de implementação:
- *   - fetchPokemonDetails utiliza Firestore como cache e enriquece os dados com:
- *     - Cadeia de evolução (evolutionChain)
- *     - Relações de dano (damageRelations)
- *     - Descrição da Pokédex (pokedexDescription)
- *     - Locais de encontro em Kanto (kantoLocations)
- *   - O cache só é considerado válido se evolutionChain e kantoLocations estiverem presentes.
- *   - fetchAllPokemons retorna um array básico de Pokémon para listagem.
- *
- * Sugestão de extensão:
- *   - Adicione suporte a outras regiões ou recursos extras conforme necessário.
+ * Tipos exportados:
+ *   - Pokemon: dados básicos para listagem
+ *   - PokemonDetailsData: dados completos para tela de detalhes
  */
 
 import { db } from "@/config/firebaseConfig";
