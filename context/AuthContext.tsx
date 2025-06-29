@@ -3,13 +3,11 @@
  *
  * Contexto global de autenticação do usuário usando Firebase Auth.
  *
- * Propósito:
- *   - Fornece o usuário autenticado e funções de login, cadastro e logout para todo o app.
- *   - Permite que qualquer componente acesse o estado de autenticação e realize ações de autenticação.
+ * - Fornece o usuário autenticado e funções de login, cadastro, logout e atualização de nome.
+ * - Permite que qualquer componente acesse o estado de autenticação e realize ações de autenticação.
+ * - Use o hook useAuth() para acessar user, login, register, logout, updateProfileName e isInitialized.
  *
- * Integração:
- *   - Envolva o app com <AuthProvider> no _layout.tsx.
- *   - Use o hook useAuth() para acessar user, login, register, logout e isInitialized.
+ * Envolva o app com <AuthProvider> no _layout.tsx.
  *
  * Exemplo de uso:
  *   const { user, login, logout } = useAuth();

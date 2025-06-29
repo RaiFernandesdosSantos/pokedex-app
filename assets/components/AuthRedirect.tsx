@@ -1,3 +1,15 @@
+/**
+ * AuthRedirect.tsx
+ *
+ * Componente de proteção de rotas.
+ * Redireciona usuários autenticados/deslogados para as telas corretas automaticamente.
+ *
+ * - Se o usuário não está autenticado e tenta acessar rotas privadas, redireciona para login.
+ * - Se o usuário está autenticado e tenta acessar login/register, redireciona para o app.
+ *
+ * Uso: Envolva o layout principal para garantir proteção de rotas.
+ */
+
 import { useAuth } from "@/context/AuthContext";
 import { useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";

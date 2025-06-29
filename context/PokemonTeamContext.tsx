@@ -1,29 +1,14 @@
 /**
  * PokemonTeamContext.tsx
  *
- * Contexto global para gerenciamento do time de Pokémon do usuário.
+ * Contexto global para gerenciamento do time de Pokémon do usuário (Firestore).
  *
- * Propósito:
- *   - Permite adicionar, remover e sincronizar o time do usuário autenticado com o Firestore.
- *   - Garante persistência do time entre dispositivos e sessões.
+ * - Permite adicionar, remover e editar membros do time.
+ * - Sincroniza o time com o Firestore para persistência entre dispositivos.
+ * - Limita o time a 6 Pokémon.
+ * - Fornece função para calcular stats baseado no nível.
  *
- * Integração:
- *   - Envolva o app com <PokemonTeamProvider> (geralmente junto do AuthProvider).
- *   - Use o hook usePokemonTeam() para acessar o time, adicionar/remover Pokémon e saber se está carregando.
- *
- * Exemplo de uso:
- *   const { team, addToTeam, removeFromTeam, isLoadingTeam } = usePokemonTeam();
- *   addToTeam(pokemon);
- *   removeFromTeam(pokemonId);
- *
- * Pontos de atenção:
- *   - Só permite manipulação do time se o usuário estiver autenticado.
- *   - O time é limitado a 6 Pokémon.
- *   - O estado local é atualizado antes do Firestore para melhor UX, mas pode haver atraso de sincronização.
- *
- * Sugestão:
- *   - Adicione tratamento de erros para operações com o Firestore.
- *   - Considere mostrar feedback visual ao salvar/remover.
+ * Use o hook usePokemonTeam() para acessar o time e as funções.
  */
 
 import React, {

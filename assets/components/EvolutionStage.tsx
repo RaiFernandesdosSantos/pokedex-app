@@ -2,6 +2,19 @@ import React from "react";
 import { View, Text, Image } from "react-native";
 import styles from "../style/EvolutionStyle";
 
+/**
+ * EvolutionStage.tsx
+ *
+ * Componente visual para exibir uma etapa da cadeia de evolução de um Pokémon.
+ *
+ * Props:
+ *   - id: número do Pokémon
+ *   - name: nome do Pokémon
+ *   - imageUrl: imagem oficial do Pokémon
+ *
+ * Usado na tela de detalhes para mostrar a linha evolutiva.
+ */
+
 type EvolutionStageProps = {
   id: number;
   name: string;

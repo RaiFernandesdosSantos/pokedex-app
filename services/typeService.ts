@@ -1,11 +1,11 @@
 /**
  * typeService.ts
  *
- * Serviço para cálculo de fraquezas de tipos de Pokémon.
+ * Serviço para cálculo de fraquezas de tipos de Pokémon e times.
  *
- * Propósito:
- *   - Fornece funções para calcular fraquezas de um Pokémon ou de um time inteiro.
- *   - Usa a PokéAPI para buscar relações de dano entre tipos.
+ * - getPokemonTypeWeaknesses: retorna fraquezas de um Pokémon.
+ * - getTeamWeaknesses: retorna fraquezas agregadas do time inteiro.
+ * - Usa PokéAPI para buscar relações de dano entre tipos.
  *
  * Integração:
  *   - Importe e use getTeamWeaknesses para mostrar fraquezas do time.

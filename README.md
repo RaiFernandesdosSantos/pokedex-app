@@ -1,6 +1,6 @@
-# Welcome to your Expo app 👋
+# Pokédex Kanto - Expo App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Este projeto é uma Pokédex moderna para dispositivos móveis, construída com [Expo](https://expo.dev), React Native, Firebase e um design system inspirado no Figma.
 
 ---
 
@@ -8,24 +8,23 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 ```
 ├── app/
-│   ├── _layout.tsx         # Layout raiz, proteção de rotas e providers
+│   ├── _layout.tsx         # Layout raiz, proteção de rotas, providers e header global
 │   ├── login.tsx           # Tela de login
 │   ├── register.tsx        # Tela de cadastro
-│   ├── (drawer)/           # Grupo de rotas privadas (Drawer)
-│   │   ├── _layout.tsx     # Layout do Drawer
-│   │   ├── index.tsx       # Home (Pokédex)
-│   │   ├── perfil.tsx      # Tela de perfil e time do usuário
-│   │   ├── Ginasios.tsx    # Tela de líderes de ginásio
-│   │   └── ...
-│   └── Home/
-│       ├── _layout.tsx     # Stack para detalhes
-│       ├── [pokemonId].tsx # Detalhes do Pokémon
-│       └── index.tsx       # Lista de Pokémons
+│   ├── [pokemonId].tsx     # Detalhes do Pokémon (Stack, fora do Drawer)
+│   ├── index.tsx           # Lista de Pokémons (Stack, fora do Drawer)
+│   └── (drawer)/           # Grupo de rotas privadas (Drawer)
+│       ├── _layout.tsx     # Layout do Drawer (define rotas privadas)
+│       ├── index.tsx       # Home (Pokédex)
+│       ├── perfil.tsx      # Tela de perfil e time do usuário
+│       ├── Ginasios.tsx    # Tela de líderes de ginásio
+│       └── ...
 ├── assets/
-│   ├── components/         # Componentes reutilizáveis (ex: CardPokemon)
-│   └── style/              # Estilos separados por tela/componente
+│   ├── components/         # Componentes reutilizáveis (ex: CardPokemon, TypeBadge)
+│   ├── icons/              # SVGs e ícones customizados
+│   └── style/              # Estilos centralizados e tema
 ├── context/
-│   ├── AuthContext.tsx     # Contexto de autenticação
+│   ├── AuthContext.tsx     # Contexto de autenticação (Firebase Auth)
 │   └── PokemonTeamContext.tsx # Contexto do time do usuário (Firestore)
 ├── services/               # Serviços de API (Pokémon, tipos, ginásios)
 ├── config/
@@ -37,7 +36,7 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 ---
 
-## 🔄 Fluxo do App (Diagrama Simplificado)
+## 🔄 Fluxo do App
 
 ```
 Usuário abre o app
@@ -45,60 +44,61 @@ Usuário abre o app
    ▼
 [Proteção de Rotas em _layout.tsx]
    │
-   ├── Não autenticado? ──► [login.tsx] ou [register.tsx]
-   │
-   └── Autenticado? ──────► [(drawer)/index.tsx] (Pokédex)
-                                 │
-                                 ├── [perfil.tsx] (Perfil e Time)
-                                 ├── [Ginasios.tsx] (Líderes)
-                                 └── [Home/[pokemonId].tsx] (Detalhes)
+   ├── Não autenticado → login/register
+   └── Autenticado → (drawer)/index (Pokédex)
+         │
+         ├── Drawer: Pokédex, Perfil, Ginásios
+         └── Stack: Detalhes do Pokémon, Lista de Pokémons
 ```
 
 ---
 
-## Get started
+## 🧩 Principais Componentes e Serviços
 
-1. Install dependencies
+- **AuthContext**: Gerencia autenticação, login, cadastro, logout e nome do treinador.
+- **PokemonTeamContext**: Gerencia o time do usuário, sincroniza com Firestore, permite editar nível, golpes, etc.
+- **CardPokemon, TypeBadge, StatBar, EvolutionStage**: UI moderna, responsiva e baseada em tema central.
+- **pokemonService**: Busca e enriquece dados da PokéAPI, com cache no Firestore.
+- **typeService**: Calcula fraquezas do time.
+- **gymService**: Dados dos líderes de ginásio de Kanto.
 
-   ```bash
+---
+
+## 🎨 Tema e Design System
+
+- Cores, espaçamentos e tokens centralizados em `assets/style/theme.ts`.
+- Integração com [react-native-unistyles](https://github.com/kristerkari/react-native-unistyles) para uso de tema em todos os componentes.
+- Layouts e componentes inspirados em Figma para UI/UX moderna.
+
+---
+
+## 🚀 Como rodar o projeto
+
+1. Instale as dependências:
+   ```sh
    npm install
    ```
-
-2. Start the app
-
-   ```bash
-    npx expo start
+2. Inicie o app:
+   ```sh
+   npx expo start
    ```
+3. Siga as instruções do Expo para rodar no emulador ou dispositivo.
 
-In the output, you'll find options to open the app in a
+---
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## 🔒 Segurança
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- Nunca exponha suas chaves do Firebase em repositórios públicos.
+- O app só permite acesso a rotas privadas para usuários autenticados.
 
-## Get a fresh project
+---
 
-When you're ready, run:
+## 📚 Mais informações
 
-```bash
-npm run reset-project
-```
+- [Documentação do Expo Router](https://docs.expo.dev/router/introduction/)
+- [PokéAPI](https://pokeapi.co/)
+- [Firebase](https://firebase.google.com/)
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Feito com ❤️ por fãs de Pokémon!

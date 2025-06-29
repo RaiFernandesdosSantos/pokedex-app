@@ -18,20 +18,10 @@ const InitialLayout = () => {
     );
   }
 
+  // Stack simples, sem screenOptions complexos aqui
   return (
-    <Stack
-      screenOptions={{
-        headerStyle: { backgroundColor: "#f4511e" },
-        headerTintColor: "#fff",
-        headerTitleStyle: { fontWeight: "bold" },
-      }}
-    >
-      <Stack.Screen
-        name="(drawer)"
-        options={{
-          headerShown: false, // O Drawer terá seu próprio header customizado pelo Stack
-        }}
-      />
+    <Stack>
+      <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
       <Stack.Screen
         name="[pokemonId]"
         options={{ title: "Detalhes do Pokémon" }}
