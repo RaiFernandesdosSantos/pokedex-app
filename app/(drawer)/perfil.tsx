@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { useAuth } from "@/context/AuthContext";
 import { usePokemonTeam, TeamPokemon } from "@/context/PokemonTeamContext";
-import CardPokemon from "@/assets/components/CardPokemon";
+import TeamMemberCard from "@/assets/components/TeamMemberCard";
 
 export default function PerfilScreen() {
   const { user, logout, updateProfileName } = useAuth();
@@ -31,12 +31,7 @@ export default function PerfilScreen() {
 
   const renderTeamMember = ({ item }: { item: TeamPokemon }) => (
     <View style={styles.cardWrapper}>
-      <CardPokemon
-        number={item.id}
-        name={item.name}
-        types={item.types}
-        imageUrl={item.imageUrl}
-      />
+      <TeamMemberCard pokemon={item} />
       <TouchableOpacity
         style={styles.removeButton}
         onPress={() => removeFromTeam(item.id)}
@@ -108,7 +103,7 @@ export default function PerfilScreen() {
           data={team}
           renderItem={renderTeamMember}
           keyExtractor={(item) => item.id.toString()}
-          numColumns={2}
+          numColumns={1}
           contentContainerStyle={styles.teamContainer}
           ListEmptyComponent={
             <Text style={styles.emptyText}>

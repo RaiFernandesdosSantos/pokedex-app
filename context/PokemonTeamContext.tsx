@@ -39,6 +39,8 @@ export type TeamPokemon = {
   ability: string; // Novo campo
   heldItem?: string; // Novo campo (opcional)
   moves: string[]; // Novo campo (até 4 golpes)
+  baseStats?: { [key: string]: number }; // Novo campo para stats base
+  calculatedStats?: { [key: string]: number }; // Novo campo para stats calculados
 };
 
 // Função para calcular stats baseado no nível
@@ -60,9 +62,9 @@ type PokemonTeamContextType = {
   ) => Promise<void>; // Novo método
 };
 
-const PokemonTeamContext = createContext<PokemonTeamContextType | undefined>(
-  undefined
-);
+export const PokemonTeamContext = createContext<
+  PokemonTeamContextType | undefined
+>(undefined);
 
 export const PokemonTeamProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
@@ -98,6 +100,17 @@ export const PokemonTeamProvider = ({ children }: { children: ReactNode }) => {
     }
 
     // Cria o objeto limpo e padronizado com campos estratégicos
+    const baseStats = pokemon.stats
+      ? pokemon.stats.reduce((acc, stat) => {
+          acc[stat.name] = stat.base_stat;
+          return acc;
+        }, {} as { [key: string]: number })
+      : {};
+    const calculatedStats = Object.keys(baseStats).reduce((acc, statName) => {
+      acc[statName] = calculateStat(baseStats[statName], 5, statName);
+      return acc;
+    }, {} as { [key: string]: number });
+
     const pokemonToAdd: TeamPokemon = {
       id: pokemon.id,
       name: pokemon.name,
@@ -106,7 +119,9 @@ export const PokemonTeamProvider = ({ children }: { children: ReactNode }) => {
       level: 5, // Valor padrão
       ability: pokemon.abilities[0] || "", // Primeira habilidade
       heldItem: undefined, // Nenhum item por padrão
-      moves: pokemon.stats ? pokemon.stats.slice(0, 4).map((s) => s.name) : [], // Usando nomes dos stats como placeholder para golpes
+      moves: [],
+      baseStats,
+      calculatedStats,
     };
 
     const userDocRef = doc(db, "users", user.uid);
@@ -127,7 +142,23 @@ export const PokemonTeamProvider = ({ children }: { children: ReactNode }) => {
     const userDocRef = doc(db, "users", user.uid);
     const member = team.find((p) => p.id === pokemonId);
     if (!member) return;
-    const updatedMember = { ...member, ...updates };
+    let updatedMember = { ...member, ...updates };
+    // Recalcula stats se o nível mudou
+    if (updates.level && member.baseStats) {
+      const newLevel = updates.level;
+      const newCalculatedStats = Object.keys(member.baseStats).reduce(
+        (acc, statName) => {
+          acc[statName] = calculateStat(
+            member.baseStats![statName],
+            newLevel,
+            statName
+          );
+          return acc;
+        },
+        {} as { [key: string]: number }
+      );
+      updatedMember = { ...updatedMember, calculatedStats: newCalculatedStats };
+    }
     setTeam((prev) =>
       prev.map((p) => (p.id === pokemonId ? updatedMember : p))
     );

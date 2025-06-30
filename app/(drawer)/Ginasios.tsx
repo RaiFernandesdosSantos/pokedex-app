@@ -1,70 +1,40 @@
-import { ScrollView, View, Text, Image } from "react-native";
+import React, { useEffect, useState } from "react";
+import { ScrollView, Text } from "react-native";
 import { kantoGymLeaders } from "../../services/gymService";
-import { usePokemonTeam } from "../../context/PokemonTeamContext";
-import { getTeamWeaknesses } from "../../services/typeService";
+import {
+  fetchPokemonDetails,
+  PokemonDetailsData,
+} from "../../services/pokemonService";
+import GymLeaderCard from "../../assets/components/GymLeaderCard";
 import { styles } from "../../assets/style/GymStyle";
-import { useEffect, useState } from "react";
 
 export default function GymScreen() {
-  const { team } = usePokemonTeam();
-  const [weaknesses, setWeaknesses] = useState<Record<string, number>>({});
+  const [leadersWithDetails, setLeadersWithDetails] = useState<any[]>([]);
 
   useEffect(() => {
-    async function fetchWeaknesses() {
-      const result = await getTeamWeaknesses(team);
-      setWeaknesses(result);
+    async function loadDetails() {
+      const all = await Promise.all(
+        kantoGymLeaders.map(async (leader) => {
+          const teamDetails: PokemonDetailsData[] = await Promise.all(
+            leader.team.map((pokeId) => fetchPokemonDetails(pokeId))
+          );
+          return { ...leader, teamDetails };
+        })
+      );
+      setLeadersWithDetails(all);
     }
-
-    if (team.length > 0) {
-      fetchWeaknesses();
-    }
-  }, [team]);
+    loadDetails();
+  }, []);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Líderes de Ginásio (Kanto)</Text>
-
-      {kantoGymLeaders.map((gym) => (
-        <View key={gym.name} style={styles.leaderCard}>
-          <Image source={{ uri: gym.imageUrl }} style={styles.gymImage} />
-
-          <Text style={styles.leaderName}>
-            {gym.name} - {gym.city}
-          </Text>
-
-          <View style={styles.typeContainer}>
-            <View style={styles.typeBadge}>
-              <Text style={styles.typeText}>{gym.type}</Text>
-            </View>
-          </View>
-
-          <Text style={styles.sectionTitle}>Pokémons:</Text>
-          <View style={styles.pokemonList}>
-            {gym.team.map((poke) => (
-              <Text key={poke} style={styles.pokemonName}>
-                • {poke}
-              </Text>
-            ))}
-          </View>
-
-          <Text style={[styles.title, { marginTop: 24 }]}>
-            Fraquezas do seu time
-          </Text>
-          <View style={styles.weaknessContainer}>
-            {Object.entries(weaknesses).length === 0 ? (
-              <Text style={styles.noWeaknessText}>
-                Seu time não tem fraquezas.
-              </Text>
-            ) : (
-              Object.entries(weaknesses).map(([type, count]) => (
-                <View key={type} style={styles.weaknessItem}>
-                  <Text style={styles.weaknessType}>{type.toUpperCase()}</Text>
-                  <Text style={styles.weaknessCount}>{count}</Text>
-                </View>
-              ))
-            )}
-          </View>
-        </View>
+      {leadersWithDetails.map((leader) => (
+        <GymLeaderCard
+          key={leader.name}
+          leader={leader}
+          teamDetails={leader.teamDetails}
+        />
       ))}
     </ScrollView>
   );

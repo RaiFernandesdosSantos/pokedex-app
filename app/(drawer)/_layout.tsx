@@ -11,20 +11,27 @@
  *   - O DrawerToggleButton deve ser controlado pelo Stack.
  */
 
+// app/(drawer)/_layout.tsx
 import { Drawer } from "expo-router/drawer";
+import { DrawerToggleButton } from "@react-navigation/drawer";
 
 export default function DrawerLayout() {
   return (
     <Drawer
       screenOptions={{
         drawerPosition: "right",
+        headerShown: true,
+        headerStyle: { backgroundColor: "#f4511e" },
+        headerTintColor: "#fff",
+        headerTitleStyle: { fontWeight: "bold" },
+        headerRight: () => <DrawerToggleButton tintColor="#fff" />,
       }}
     >
       <Drawer.Screen
         name="index"
         options={{
           title: "Pokédex Kanto",
-          drawerLabel: "Pokédex Kanto",
+          drawerLabel: "Pokédex",
         }}
       />
       <Drawer.Screen
@@ -41,6 +48,7 @@ export default function DrawerLayout() {
           drawerLabel: "Líderes de Ginásio",
         }}
       />
+      {/* Removemos a tela de Logout daqui, pois ela é uma ação no Perfil */}
     </Drawer>
   );
 }
