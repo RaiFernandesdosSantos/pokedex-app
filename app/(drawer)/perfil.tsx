@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -13,33 +13,33 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { usePokemonTeam, TeamPokemon } from "@/context/PokemonTeamContext";
 import TeamMemberCard from "@/assets/components/TeamMemberCard";
+import { Ionicons } from "@expo/vector-icons";
+import { theme } from "@/assets/style/theme";
 
 export default function PerfilScreen() {
   const { user, logout, updateProfileName } = useAuth();
   const { team, isLoadingTeam, removeFromTeam } = usePokemonTeam();
-  const [modalVisible, setModalVisible] = useState(!user?.displayName);
-  const [name, setName] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [name, setName] = useState(user?.displayName || "");
+
+  useEffect(() => {
+    if (user && !user.displayName) {
+      setModalVisible(true);
+    }
+  }, [user]);
 
   if (!user) {
     return null;
   }
 
   const handleSave = async () => {
-    await updateProfileName(name);
-    setModalVisible(false);
+    if (name.trim()) {
+      await updateProfileName(name.trim());
+      setModalVisible(false);
+    } else {
+      alert("Por favor, insira um nome válido.");
+    }
   };
-
-  const renderTeamMember = ({ item }: { item: TeamPokemon }) => (
-    <View style={styles.cardWrapper}>
-      <TeamMemberCard pokemon={item} />
-      <TouchableOpacity
-        style={styles.removeButton}
-        onPress={() => removeFromTeam(item.id)}
-      >
-        <Text style={styles.removeButtonText}>Remover</Text>
-      </TouchableOpacity>
-    </View>
-  );
 
   return (
     <View style={styles.container}>
@@ -91,17 +91,30 @@ export default function PerfilScreen() {
           <Text style={styles.logoutButtonText}>Sair</Text>
         </TouchableOpacity>
       </View>
-      {user.displayName && (
-        <Text style={styles.displayName}>Treinador: {user.displayName}</Text>
-      )}
+      <View style={styles.displayNameContainer}>
+        <Text style={styles.displayName}>
+          Treinador: {user.displayName || "Não definido"}
+        </Text>
+        <TouchableOpacity onPress={() => setModalVisible(true)}>
+          <Ionicons
+            name="pencil"
+            size={20}
+            color={theme.colors.grayscaleDark}
+          />
+        </TouchableOpacity>
+      </View>
       <Text style={styles.email}>Email: {user.email}</Text>
       <Text style={styles.sectionTitle}>Meu Time</Text>
       {isLoadingTeam ? (
-        <ActivityIndicator size="large" color="#f4511e" />
+        <ActivityIndicator size="large" color={theme.colors.identityPrimary} />
       ) : (
         <FlatList
           data={team}
-          renderItem={renderTeamMember}
+          renderItem={({ item }) => (
+            <View style={styles.cardWrapper}>
+              <TeamMemberCard pokemon={item} />
+            </View>
+          )}
           keyExtractor={(item) => item.id.toString()}
           numColumns={1}
           contentContainerStyle={styles.teamContainer}
@@ -143,11 +156,16 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontWeight: "bold",
   },
+  displayNameContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 4,
+  },
   displayName: {
     fontSize: 20,
     fontWeight: "bold",
     color: "#c2343a",
-    marginBottom: 4,
     textAlign: "left",
   },
   email: {
@@ -165,8 +183,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cardWrapper: {
-    margin: 8,
-    alignItems: "center",
+    width: "100%",
+    paddingHorizontal: 8,
+    marginBottom: 10,
   },
   removeButton: {
     marginTop: -15,

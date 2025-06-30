@@ -1,16 +1,11 @@
-/**
- * pokemonService.ts
- *
- * Serviço para buscar dados de Pokémon da PokéAPI e enriquecer com Firestore.
- *
- * - fetchAllPokemons: retorna lista básica de pokémons para listagem.
- * - fetchPokemonDetails: retorna detalhes completos, incluindo cadeia evolutiva, fraquezas, descrição, locais de encontro e raridade.
- * - Usa Firestore como cache para acelerar buscas e evitar requisições desnecessárias.
- *
- * Tipos exportados:
- *   - Pokemon: dados básicos para listagem
- *   - PokemonDetailsData: dados completos para tela de detalhes
- */
+// pokemonService.ts
+// Serviço para dados de Pokémon e detalhes (PokéAPI + Firestore).
+// - fetchAllPokemons: lista básica de pokémons.
+// - fetchPokemonDetails: detalhes completos (cadeia evolutiva, fraquezas, descrição, locais de encontro, raridade, golpes aprendíveis).
+// - Firestore usado como cache para acelerar buscas.
+// Tipos exportados:
+//   - Pokemon: dados básicos
+//   - PokemonDetailsData: dados completos
 
 import { db } from "@/config/firebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
@@ -48,6 +43,7 @@ export type PokemonDetailsData = {
     locations: string[];
   }[];
   rarity: 'common' | 'legendary' | 'mythical'; // Novo campo
+  learnableMoves: { name: string; level: number }[]; // <-- ADICIONADO
 };
 
 // --- FUNÇÕES DO SERVIÇO ---
@@ -88,7 +84,7 @@ export async function fetchPokemonDetails(
   const docSnap = await getDoc(pokemonDocRef);
 
   // Se o documento existe E já tem evolutionChain e kantoLocations, então está completo
-  if (docSnap.exists() && docSnap.data().evolutionChain && docSnap.data().kantoLocations) {
+  if (docSnap.exists() && docSnap.data().evolutionChain && docSnap.data().kantoLocations && docSnap.data().learnableMoves) {
     console.log("Pokémon COMPLETO encontrado no cache do Firestore!");
     return docSnap.data() as PokemonDetailsData;
   }
@@ -147,15 +143,39 @@ export async function fetchPokemonDetails(
     if (locationsForGame.length > 0) {
       kantoLocations.push({
         version: game,
-        locations: [...new Set(locationsForGame as string[])] // Corrigido para garantir string[]
+        locations: [...new Set(locationsForGame as string[])]
       });
     }
   });
 
+  // LÓGICA PARA PROCESSAR E FILTRAR OS GOLPES
+  const learnableMoves = pokemonData.moves
+    .map((moveData: any) => {
+      // Encontra detalhes de como o golpe é aprendido em Red/Blue/Yellow
+      const kantoLearnDetail = moveData.version_group_details.find(
+        (detail: any) => 
+          (detail.version_group.name === 'red-blue' || detail.version_group.name === 'yellow') && 
+          detail.move_learn_method.name === 'level-up'
+      );
+      if (kantoLearnDetail) {
+        return {
+          name: moveData.move.name.replace(/-/g, ' '),
+          level: kantoLearnDetail.level_learned_at,
+        };
+      }
+      return null;
+    })
+    .filter((move: any): move is { name: string; level: number } => move !== null)
+    .sort((a: { name: string; level: number }, b: { name: string; level: number }) => a.level - b.level);
+
   const standardizedData: PokemonDetailsData = {
     id: pokemonData.id,
     name: pokemonData.name,
-    imageUrl: pokemonData.sprites.other["official-artwork"].front_default,
+    // Lógica de fallback para garantir sempre uma imagem
+    imageUrl: 
+      pokemonData.sprites.other["official-artwork"].front_default ||
+      pokemonData.sprites.other.dream_world.front_default ||
+      pokemonData.sprites.front_default,
     types,
     abilities: pokemonData.abilities.map((a: any) => a.ability.name),
     stats: pokemonData.stats.map((s: any) => ({
@@ -171,7 +191,8 @@ export async function fetchPokemonDetails(
       immunities: Array.from(immunities),
     },
     kantoLocations: kantoLocations, // Sempre salva como array (pode ser vazio)
-    rarity: speciesData.is_legendary ? 'legendary' : speciesData.is_mythical ? 'mythical' : 'common', // Novo campo
+    rarity: speciesData.is_legendary ? 'legendary' : speciesData.is_mythical ? 'mythical' : 'common',
+    learnableMoves, // <-- ADICIONADO
   };
 
   await setDoc(pokemonDocRef, standardizedData);

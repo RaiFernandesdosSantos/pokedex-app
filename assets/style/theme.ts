@@ -1,6 +1,6 @@
 // theme.ts
+// Tema central do app (cores, espaçamentos).
 
-// Paleta de cores centralizada
 export const colors = {
   identityPrimary: "#dc0a2d",
   identitySecondary: "#28aafd",
@@ -38,5 +38,5 @@ export const spacing = {
 // Export opcional de tema completo (caso queira)
 export const theme = {
   colors,
-  spacing,
+  primary: colors.identityPrimary, // Adiciona alias para compatibilidade
 };

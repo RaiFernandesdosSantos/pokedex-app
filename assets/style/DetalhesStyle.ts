@@ -1,10 +1,6 @@
-/**
- * DetalhesStyle.ts
- *
- * Estilos para a tela de detalhes do Pokémon.
- *
- * Inclui funções utilitárias para cor de tipo e estilos de seções, títulos, etc.
- */
+// DetalhesStyle.ts
+// Estilos da tela de detalhes do Pokémon.
+// Inclui funções utilitárias para cor de tipo e estilos de seções, títulos, etc.
 
 import { StyleSheet } from "react-native";
 

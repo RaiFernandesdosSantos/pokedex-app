@@ -4,8 +4,7 @@ import styles from "../style/EvolutionStyle";
 
 /**
  * EvolutionStage.tsx
- *
- * Componente visual para exibir uma etapa da cadeia de evolução de um Pokémon.
+ * Mostra etapa da cadeia evolutiva do Pokémon.
  *
  * Props:
  *   - id: número do Pokémon

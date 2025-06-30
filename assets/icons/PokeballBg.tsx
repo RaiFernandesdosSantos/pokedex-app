@@ -1,12 +1,6 @@
-/**
- * PokeballBg.tsx
- *
- * SVG de Pokébola para usar como background decorativo em cards e detalhes.
- *
- * Props:
- *   - width, height: dimensões do SVG
- *   - style: estilo opcional
- */
+// PokeballBg.tsx
+// SVG decorativo de Pokébola.
+// Usado como background em cards e detalhes.
 
 import * as React from "react";
 import Svg, { Path } from "react-native-svg";

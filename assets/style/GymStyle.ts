@@ -1,10 +1,6 @@
-/**
- * GymStyle.ts
- *
- * Estilos para a tela de líderes de ginásio (Ginasios.tsx).
- *
- * Define aparência de cards de líderes, lista de pokémons, fraquezas, etc.
- */
+// GymStyle.ts
+// Estilos da tela de líderes de ginásio.
+// Define aparência de cards de líderes, lista de pokémons, fraquezas, etc.
 
 import { StyleSheet } from "react-native";
 

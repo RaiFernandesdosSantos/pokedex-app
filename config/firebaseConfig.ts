@@ -1,17 +1,11 @@
-/**
- * firebaseConfig.ts
- *
- * Configuração e inicialização do Firebase para o app.
- *
- * Exporta instâncias de auth e db para uso global.
- *
- * Atenção: nunca exponha suas chaves em repositórios públicos.
- */
+// firebaseConfig.ts
+// Configuração e exportação do Firebase (auth, db).
+//
+// Atenção: nunca exponha suas chaves em repositórios públicos.
 
 import { initializeApp } from "firebase/app";
-import { initializeAuth, getReactNativePersistence } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCa9RiSyqvBPvLBoeKFboDzB7rQrwy7hVw", // do google-services.json
@@ -25,9 +19,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage),
-});
+const auth = getAuth(app);
 
 const db = getFirestore(app);
 

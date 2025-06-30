@@ -1,25 +1,21 @@
-/**
- * AuthContext.tsx
- *
- * Contexto global de autenticação do usuário usando Firebase Auth.
- *
- * - Fornece o usuário autenticado e funções de login, cadastro, logout e atualização de nome.
- * - Permite que qualquer componente acesse o estado de autenticação e realize ações de autenticação.
- * - Use o hook useAuth() para acessar user, login, register, logout, updateProfileName e isInitialized.
- *
- * Envolva o app com <AuthProvider> no _layout.tsx.
- *
- * Exemplo de uso:
- *   const { user, login, logout } = useAuth();
- *   if (!user) login(email, senha);
- *
- * Pontos de atenção:
- *   - Sempre use isInitialized para saber se o estado de auth já foi resolvido.
- *   - Não use useAuth fora do AuthProvider.
- *
- * Sugestão:
- *   - Documente as funções login/register/logout para facilitar manutenção.
- */
+// AuthContext.tsx
+// Contexto global de autenticação Firebase.
+// Fornece o usuário autenticado e funções de login, cadastro, logout e atualização de nome.
+// Permite que qualquer componente acesse o estado de autenticação e realize ações de autenticação.
+// Use o hook useAuth() para acessar user, login, register, logout, updateProfileName e isInitialized.
+//
+// Envolva o app com <AuthProvider> no _layout.tsx.
+//
+// Exemplo de uso:
+//   const { user, login, logout } = useAuth();
+//   if (!user) login(email, senha);
+//
+// Pontos de atenção:
+//   - Sempre use isInitialized para saber se o estado de auth já foi resolvido.
+//   - Não use useAuth fora do AuthProvider.
+//
+// Sugestão:
+//   - Documente as funções login/register/logout para facilitar manutenção.
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { auth } from "@/config/firebaseConfig";

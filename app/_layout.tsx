@@ -1,4 +1,6 @@
-//import "@/assets/style/unistyles";
+// _layout.tsx
+// Layout raiz: providers, proteção de rotas, header global.
+
 import { Stack } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PokemonTeamProvider } from "@/context/PokemonTeamContext";
@@ -26,6 +28,10 @@ const InitialLayout = () => {
         name="[pokemonId]"
         options={{ title: "Detalhes do Pokémon" }}
       />
+      <Stack.Screen
+        name="ginasio/[leaderId]"
+        options={{ title: "Time do Líder" }}
+      />
       <Stack.Screen name="login" options={{ headerShown: false }} />
       <Stack.Screen name="register" options={{ headerShown: false }} />
     </Stack>
@@ -44,6 +50,15 @@ export default function RootLayout() {
                 name="[pokemonId]"
                 options={{
                   title: "Detalhes do Pokémon",
+                  headerStyle: { backgroundColor: "#f4511e" },
+                  headerTintColor: "#fff",
+                  headerTitleStyle: { fontWeight: "bold" },
+                }}
+              />
+              <Stack.Screen
+                name="ginasio/[leaderId]"
+                options={{
+                  title: "Time do Líder",
                   headerStyle: { backgroundColor: "#f4511e" },
                   headerTintColor: "#fff",
                   headerTitleStyle: { fontWeight: "bold" },

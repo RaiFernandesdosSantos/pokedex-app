@@ -9,6 +9,8 @@ const styles = StyleSheet.create({
     minWidth: 60,
     alignItems: "center",
     justifyContent: "center",
+    borderWidth: 1,
+    borderColor: '#fff',
   },
   text: {
     color: "#ffffff",

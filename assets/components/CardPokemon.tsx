@@ -1,14 +1,7 @@
-/**
- * CardPokemon.tsx
- *
- * Componente visual para exibir um Pokémon em formato de card.
- *
- * - Exibe imagem, nome, número e tipos do Pokémon.
- * - Usado em listas, grids e telas de detalhes.
- * - Permite customização de clique ou ações extras via props.
- *
- * Props esperadas: number, name, types, imageUrl.
- */
+// CardPokemon.tsx
+// Card visual de Pokémon para listas e grids.
+// Exibe imagem, nome, número e tipos do Pokémon.
+// Permite customização de clique ou ações extras via props.
 
 import React from "react";
 import { View, Text, Image } from "react-native";

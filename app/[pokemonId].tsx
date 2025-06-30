@@ -190,24 +190,27 @@ export default function PokemonDetails() {
           zIndex: 1,
         }}
       >
-        {/* Bloco de Mensagem de Obtenção/Raridade */}
-        <View style={localStylesExtended.infoMessageContainer}>
-          {pokemon.rarity === "mythical" ? (
-            <Text style={localStylesExtended.infoMessageText}>
-              Este Pokémon é Mítico e só pode ser obtido por evento especial.
-            </Text>
-          ) : pokemon.rarity === "legendary" ? (
-            <Text style={localStylesExtended.infoMessageText}>
-              Este Pokémon é Lendário e só pode ser encontrado em um local
-              único.
-            </Text>
-          ) : pokemon.kantoLocations && pokemon.kantoLocations.length === 0 ? (
-            <Text style={localStylesExtended.infoMessageText}>
-              Este Pokémon não é encontrado na natureza em Kanto (obtido por
-              evolução/troca).
-            </Text>
-          ) : null}
-        </View>
+        {/* Bloco de Mensagem Condicional */}
+        {(pokemon.rarity !== "common" ||
+          (pokemon.kantoLocations && pokemon.kantoLocations.length === 0)) && (
+          <View style={localStylesExtended.infoMessageContainer}>
+            {pokemon.rarity === "mythical" ? (
+              <Text style={localStylesExtended.infoMessageText}>
+                Este Pokémon é Mítico e só pode ser obtido por evento especial.
+              </Text>
+            ) : pokemon.rarity === "legendary" ? (
+              <Text style={localStylesExtended.infoMessageText}>
+                Este Pokémon é Lendário e só pode ser encontrado em um local
+                único.
+              </Text>
+            ) : (
+              <Text style={localStylesExtended.infoMessageText}>
+                Este Pokémon não é encontrado na natureza em Kanto (obtido por
+                evolução/troca).
+              </Text>
+            )}
+          </View>
+        )}
         {/* Tipos */}
         <View
           style={{

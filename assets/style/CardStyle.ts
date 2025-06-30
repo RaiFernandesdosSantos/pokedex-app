@@ -1,10 +1,6 @@
-/**
- * CardStyle.ts
- *
- * Estilos para o componente CardPokemon.
- *
- * Define aparência de cards, imagem, nome, tipos, etc.
- */
+// CardStyle.ts
+// Estilos do CardPokemon.
+// Define aparência de cards, imagem, nome, tipos, etc.
 
 import { StyleSheet } from "react-native";
 import { theme } from "./theme";
@@ -28,6 +24,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
     marginBottom: -32,
     zIndex: 3,
+    resizeMode: 'contain', // Ensures images fit within the space without distortion
   },
   card: {
     backgroundColor: theme.colors.grayscaleWhite,
@@ -72,6 +69,7 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "center",
     marginTop: 4,
+    minHeight: 30, // Ensures space for at least one line of badges, maintaining consistent height
   },
 });
 

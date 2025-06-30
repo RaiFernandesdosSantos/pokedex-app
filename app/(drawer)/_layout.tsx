@@ -1,15 +1,11 @@
-/**
- * (drawer)/_layout.tsx
- *
- * Responsável por:
- *   - Definir as telas do menu Drawer (Início, Perfil, Ginásios).
- *   - NÃO controla cabeçalho, cor ou botão do Drawer (isso é feito pelo Stack em _layout.tsx).
- *   - Apenas lista as rotas privadas do app.
- *
- * Observações:
- *   - O headerShown, headerStyle, headerTintColor etc. podem ser removidos daqui para evitar conflito.
- *   - O DrawerToggleButton deve ser controlado pelo Stack.
- */
+// (drawer)/_layout.tsx
+// Layout do Drawer: define rotas privadas do menu lateral.
+// Não controla cabeçalho, cor ou botão do Drawer (isso é feito pelo Stack em _layout.tsx).
+// Apenas lista as rotas privadas do app.
+//
+// Observações:
+//   - O headerShown, headerStyle, headerTintColor etc. podem ser removidos daqui para evitar conflito.
+//   - O DrawerToggleButton deve ser controlado pelo Stack.
 
 // app/(drawer)/_layout.tsx
 import { Drawer } from "expo-router/drawer";
