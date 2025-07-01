@@ -94,7 +94,11 @@ export default function PerfilScreen() {
             style={styles.editNameButton}
             onPress={() => setModalVisible(true)}
           >
-            <Ionicons name="pencil" size={20} color={theme.colors.grayscaleDark} />
+            <Ionicons
+              name="pencil"
+              size={20}
+              color={theme.colors.grayscaleDark}
+            />
           </TouchableOpacity>
         </View>
         <TouchableOpacity style={styles.logoutButton} onPress={logout}>
