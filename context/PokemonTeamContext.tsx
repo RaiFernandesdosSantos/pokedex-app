@@ -82,11 +82,10 @@ export const PokemonTeamProvider = ({ children }: { children: ReactNode }) => {
       imageUrl: pokemon.imageUrl,
       types: pokemon.types,
       stats: pokemon.stats, // Salva os stats base corretamente
-      level: 50,
+      level: 10,
       ability: pokemon.abilities[0] || "unknown",
-      // CORREÇÃO APLICADA AQUI!
-      heldItem: null, // Usamos null em vez de undefined
-      // Pega os 4 primeiros golpes da lista de golpes aprendíveis
+      heldItem: null, // null
+      //  os 4 primeiros golpes da lista de golpes possiveis
       moves: pokemon.learnableMoves.slice(0, 4).map((m) => m.name),
     };
 

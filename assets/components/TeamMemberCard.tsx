@@ -8,6 +8,7 @@ import {
   TextInput,
   FlatList,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { usePokemonTeam } from "@/context/PokemonTeamContext";
 import { TeamPokemon } from "@/context/PokemonTeamContext";
@@ -15,6 +16,8 @@ import styles from "../style/TeamMemberCardStyle";
 import { theme } from "../style/theme";
 import TypeBadge from "./TypeBadge";
 import { fetchPokemonDetails } from "@/services/pokemonService";
+import { fetchAllItems, PokemonItem } from "@/services/itemService";
+import { kantoHMs } from "@/services/moveService";
 
 type TeamMemberCardProps = {
   pokemon: TeamPokemon;
@@ -33,15 +36,19 @@ const TeamMemberCard: React.FC<TeamMemberCardProps> = ({
   pokemon,
   isEditable = true,
 }) => {
-  const { updateTeamMember } = usePokemonTeam();
+  const { updateTeamMember, removeFromTeam } = usePokemonTeam();
   const [levelModalVisible, setLevelModalVisible] = useState(false);
   const [movesModalVisible, setMovesModalVisible] = useState(false);
+  const [itemModalVisible, setItemModalVisible] = useState(false);
   const [newLevel, setNewLevel] = useState(pokemon.level.toString());
   const [selectedMoves, setSelectedMoves] = useState<string[]>(pokemon.moves);
   const [availableMoves, setAvailableMoves] = useState<
     { name: string; level: number }[]
   >([]);
   const [isLoadingMoves, setIsLoadingMoves] = useState(false);
+  const [itemSearch, setItemSearch] = useState("");
+  const [items, setItems] = useState<PokemonItem[]>([]);
+  const [isLoadingItems, setIsLoadingItems] = useState(false);
 
   // Cor de fundo baseada no tipo primário
   const primaryType =
@@ -75,16 +82,39 @@ const TeamMemberCard: React.FC<TeamMemberCardProps> = ({
     }
   };
 
-  // Lógica para buscar golpes aprendíveis
+  // Lógica para buscar golpes aprendíveis (incluindo HMs)
   const loadMoves = async () => {
     if (!isEditable) return;
     setIsLoadingMoves(true);
     setMovesModalVisible(true);
     try {
+      // Golpes aprendíveis por level-up
       const details = await fetchPokemonDetails(pokemon.id);
-      setAvailableMoves(details.learnableMoves);
+      // Busca completa dos golpes para checar HMs
+      const response = await fetch(
+        `https://pokeapi.co/api/v2/pokemon/${pokemon.id}`
+      );
+      const fullData = await response.json();
+      // HMs compatíveis
+      const learnableHMs = kantoHMs
+        .filter((hm) =>
+          fullData.moves.some(
+            (apiMove: any) =>
+              apiMove.move.name === hm.moveName &&
+              apiMove.version_group_details.some(
+                (d: any) => d.move_learn_method.name === "machine"
+              )
+          )
+        )
+        .map((hm) => ({ name: hm.moveName, level: 0 }));
+      // Junta golpes de level-up e HMs, remove duplicatas e ordena
+      const finalMoveList = [...details.learnableMoves, ...learnableHMs];
+      const uniqueMoves = Array.from(
+        new Map(finalMoveList.map((item) => [item.name, item])).values()
+      ).sort((a, b) => a.level - b.level);
+      setAvailableMoves(uniqueMoves);
     } catch (error) {
-      console.error("Erro ao carregar lista de golpes:", error);
+      console.error("Erro ao carregar lista de golpes completa:", error);
       alert("Não foi possível carregar os golpes.");
     } finally {
       setIsLoadingMoves(false);
@@ -102,15 +132,61 @@ const TeamMemberCard: React.FC<TeamMemberCardProps> = ({
   };
 
   const saveMoves = () => {
+    // Validação: algum golpe selecionado requer nível maior que o atual?
+    const invalidMoves = selectedMoves
+      .map((moveName) => availableMoves.find((m) => m.name === moveName))
+      .filter((move) => move && move.level > pokemon.level);
+    if (invalidMoves.length > 0) {
+      const moveNames = invalidMoves
+        .filter((m): m is { name: string; level: number } => !!m)
+        .map((m) => `${m.name} (Lv. ${m.level})`)
+        .join(", ");
+      Alert.alert(
+        "Golpe acima do nível",
+        `Os golpes selecionados requerem nível maior que o atual: ${moveNames}. Deseja salvar mesmo assim?`,
+        [
+          {
+            text: "Cancelar",
+            style: "cancel",
+          },
+          {
+            text: "Salvar mesmo assim",
+            style: "destructive",
+            onPress: () => {
+              updateTeamMember(pokemon.id, { moves: selectedMoves });
+              setMovesModalVisible(false);
+            },
+          },
+        ]
+      );
+      return;
+    }
     updateTeamMember(pokemon.id, { moves: selectedMoves });
     setMovesModalVisible(false);
   };
 
+  // Carregar itens ao abrir modal
+  const loadItems = async () => {
+    setIsLoadingItems(true);
+    setItemModalVisible(true);
+    try {
+      const allItems = await fetchAllItems();
+      setItems(allItems);
+    } catch (e) {
+      alert("Erro ao buscar itens.");
+    } finally {
+      setIsLoadingItems(false);
+    }
+  };
+
+  const handleSelectItem = (itemName: string) => {
+    updateTeamMember(pokemon.id, { heldItem: itemName });
+    setItemModalVisible(false);
+  };
+
   return (
     <View style={[styles.cardContainer, { backgroundColor }]}>
-      {" "}
-      {/* <-- cor dinâmica */}
-      {/* Coluna Esquerda: Informações Principais */}
+      {/* COLUNA 1: IMAGEM E INFO BÁSICA */}
       <View style={styles.leftColumn}>
         <Image source={{ uri: pokemon.imageUrl }} style={styles.image} />
         <Text style={styles.name}>{pokemon.name}</Text>
@@ -122,13 +198,15 @@ const TeamMemberCard: React.FC<TeamMemberCardProps> = ({
         {!isEditable && (
           <Text style={styles.level}>Nível: {pokemon.level}</Text>
         )}
-        <View style={styles.typesContainer}>
+        <View style={styles.typesContainer_vertical}>
           {pokemon.types.map((type) => (
             <TypeBadge key={type} typeName={type} />
           ))}
         </View>
       </View>
-      {/* Coluna Direita: Habilidade, Item, Golpes, Stats Calculados */}
+      {/* DIVISÓRIA SUTIL */}
+      <View style={styles.divider} />
+      {/* COLUNA 2: DETALHES ESTRATÉGICOS */}
       <View style={styles.rightColumn}>
         <View style={styles.detailRow}>
           <Text style={styles.detailTitle}>Habilidade</Text>
@@ -137,19 +215,24 @@ const TeamMemberCard: React.FC<TeamMemberCardProps> = ({
         <View style={styles.divider} />
         <View style={styles.detailRow}>
           <Text style={styles.detailTitle}>Item</Text>
-          <Text style={styles.detailValue}>{pokemon.heldItem || "Nenhum"}</Text>
+          <TouchableOpacity onPress={isEditable ? loadItems : undefined}>
+            <Text style={styles.detailValue}>
+              {pokemon.heldItem || "Nenhum"}
+            </Text>
+          </TouchableOpacity>
         </View>
         <View style={styles.divider} />
-        {/* Seção de Golpes como botão */}
         <TouchableOpacity onPress={loadMoves} disabled={!isEditable}>
           <View style={styles.movesContainer}>
             <Text style={styles.detailTitle}>Golpes</Text>
             {pokemon.moves.length > 0 ? (
-              pokemon.moves.map((move, index) => (
-                <View key={index} style={styles.moveSlot}>
-                  <Text style={styles.moveText}>{move}</Text>
-                </View>
-              ))
+              pokemon.moves
+                .filter((move) => typeof move === "string" && move)
+                .map((move, index) => (
+                  <View key={index} style={styles.moveSlot}>
+                    <Text style={styles.moveText}>{move}</Text>
+                  </View>
+                ))
             ) : (
               <View style={styles.moveSlot}>
                 <Text
@@ -164,7 +247,6 @@ const TeamMemberCard: React.FC<TeamMemberCardProps> = ({
             )}
           </View>
         </TouchableOpacity>
-        {/* Stats Calculados */}
         <View style={{ marginTop: 10 }}>
           <Text style={styles.detailTitle}>Stats (Nível {pokemon.level})</Text>
           {Object.entries(calculatedStats).map(([name, value]) => (
@@ -173,6 +255,22 @@ const TeamMemberCard: React.FC<TeamMemberCardProps> = ({
             </Text>
           ))}
         </View>
+        {isEditable && (
+          <TouchableOpacity
+            onPress={() => removeFromTeam(pokemon.id)}
+            style={{
+              marginTop: 16,
+              backgroundColor: theme.colors.identityPrimary,
+              borderRadius: 8,
+              paddingVertical: 8,
+              alignItems: "center",
+            }}
+          >
+            <Text style={{ color: "#fff", fontWeight: "bold", fontSize: 16 }}>
+              Remover
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
       {/* Modal de Nível */}
       <Modal visible={levelModalVisible} animationType="slide" transparent>
@@ -313,6 +411,85 @@ const TeamMemberCard: React.FC<TeamMemberCardProps> = ({
             </TouchableOpacity>
             <TouchableOpacity onPress={() => setMovesModalVisible(false)}>
               <Text style={[styles.moveText, { color: "#fff", fontSize: 16 }]}>
+                Cancelar
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+      {/* Modal de Itens */}
+      <Modal visible={itemModalVisible} animationType="slide" transparent>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0,0,0,0.5)",
+            position: "absolute",
+            width: "100%",
+            height: "100%",
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: "#222",
+              padding: 24,
+              borderRadius: 16,
+              width: 320,
+              maxHeight: 400,
+            }}
+          >
+            <Text
+              style={{
+                color: "#fff",
+                fontSize: 18,
+                fontWeight: "bold",
+                marginBottom: 12,
+              }}
+            >
+              Selecionar Item
+            </Text>
+            <TextInput
+              placeholder="Buscar item..."
+              value={itemSearch}
+              onChangeText={setItemSearch}
+              style={{
+                borderWidth: 1,
+                borderColor: "#555",
+                color: "#fff",
+                padding: 8,
+                borderRadius: 8,
+                marginBottom: 12,
+              }}
+            />
+            {isLoadingItems ? (
+              <ActivityIndicator color={theme.colors.identityPrimary} />
+            ) : (
+              <FlatList
+                data={items.filter((item) =>
+                  item.name.toLowerCase().includes(itemSearch.toLowerCase())
+                )}
+                keyExtractor={(item) => item.name}
+                style={{ maxHeight: 220 }}
+                renderItem={({ item }) => (
+                  <TouchableOpacity onPress={() => handleSelectItem(item.name)}>
+                    <Text
+                      style={{
+                        color: "#fff",
+                        fontSize: 16,
+                        paddingVertical: 6,
+                        borderBottomWidth: 1,
+                        borderBottomColor: "#333",
+                      }}
+                    >
+                      {item.name.replace(/-/g, " ")}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              />
+            )}
+            <TouchableOpacity onPress={() => setItemModalVisible(false)}>
+              <Text style={{ color: "#fff", fontSize: 16, marginTop: 10 }}>
                 Cancelar
               </Text>
             </TouchableOpacity>
