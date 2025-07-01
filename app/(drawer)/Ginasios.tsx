@@ -55,11 +55,11 @@ export default function GymScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Líderes de Ginásio (Kanto)</Text>
+      <Text style={styles.title}>Kanto</Text>
       <FlatList
         data={leadersWithDetails}
         keyExtractor={(leader) => leader.name}
-        key={numColumns} // Forces re-render if number of columns changes
+        key={numColumns}
         numColumns={numColumns}
         renderItem={({ item }) => (
           <GymLeaderCard leader={item} teamDetails={item.teamDetails} />

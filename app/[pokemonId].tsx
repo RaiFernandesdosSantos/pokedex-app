@@ -65,6 +65,23 @@ export default function PokemonDetails() {
     loadPokemonDetails();
   }, [pokemonId]);
 
+  useEffect(() => {
+    if (pokemon) {
+      const primaryType = pokemon.types[0];
+      const typeColor =
+        (theme.colors as Record<string, string>)[
+          `pokemonType${
+            primaryType.charAt(0).toUpperCase() + primaryType.slice(1)
+          }`
+        ] || theme.colors.grayscaleBackground;
+      navigation.setOptions({
+        headerStyle: { backgroundColor: typeColor },
+        headerTintColor: "#fff",
+        headerTitleStyle: { fontWeight: "bold" },
+      });
+    }
+  }, [pokemon]);
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
