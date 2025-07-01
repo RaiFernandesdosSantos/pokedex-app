@@ -6,35 +6,39 @@ import {
   useWindowDimensions,
   View,
 } from "react-native";
-import { kantoGymLeaders } from "../../services/gymService";
+import { fetchKantoLeaders, GymLeader } from "@/services/gymService";
 import {
   fetchPokemonDetails,
   PokemonDetailsData,
-} from "../../services/pokemonService";
-import GymLeaderCard from "../../assets/components/GymLeaderCard";
-import { styles } from "../../assets/style/GymStyle";
+} from "@/services/pokemonService";
+import GymLeaderCard from "@/assets/components/GymLeaderCard";
+import { styles } from "@/assets/style/GymStyle";
+
+type LeaderWithDetails = GymLeader & { teamDetails: PokemonDetailsData[] };
 
 export default function GymScreen() {
-  const [leadersWithDetails, setLeadersWithDetails] = useState<any[]>([]);
+  const [leadersWithDetails, setLeadersWithDetails] = useState<
+    LeaderWithDetails[]
+  >([]);
   const [loading, setLoading] = useState(true);
-  const { width } = useWindowDimensions(); // Hook to get screen width
-  // Calculate number of columns based on screen width
-  const cardWidth = 160; // Approximate width of leader card
-  const numColumns = Math.floor(width / cardWidth) || 1; // Ensure at least 1 column
+  const { width } = useWindowDimensions();
+  const cardWidth = 180;
+  const numColumns = Math.floor(width / cardWidth) || 1;
 
   useEffect(() => {
     async function loadDetails() {
       try {
-        const all = await Promise.all(
-          kantoGymLeaders.map(async (leader) => {
-            // Mapeia sobre o objeto {id, level} para pegar apenas o ID para o fetch
-            const teamDetails: PokemonDetailsData[] = await Promise.all(
+        setLoading(true);
+        const leaders = await fetchKantoLeaders();
+        const allLeadersWithDetails = await Promise.all(
+          leaders.map(async (leader) => {
+            const teamDetails = await Promise.all(
               leader.team.map((pokemon) => fetchPokemonDetails(pokemon.id))
             );
             return { ...leader, teamDetails };
           })
         );
-        setLeadersWithDetails(all);
+        setLeadersWithDetails(allLeadersWithDetails);
       } catch (error) {
         console.error("Erro ao carregar detalhes dos líderes:", error);
       } finally {
@@ -57,7 +61,7 @@ export default function GymScreen() {
     <View style={styles.container}>
       <FlatList
         data={leadersWithDetails}
-        keyExtractor={(leader) => leader.name}
+        keyExtractor={(leader) => leader.id}
         key={numColumns}
         numColumns={numColumns}
         renderItem={({ item }) => (

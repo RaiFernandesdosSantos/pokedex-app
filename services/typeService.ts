@@ -1,8 +1,8 @@
 // typeService.ts
-// Serviço para cálculo de fraquezas de tipos.
+// Serviço para cálculo de fraquezas e resistências de tipos.
 // - getPokemonTypeWeaknesses: retorna fraquezas de um Pokémon.
+// - getPokemonTypeResistances: retorna resistências de um Pokémon.
 // - getTeamWeaknesses: retorna fraquezas agregadas do time inteiro.
-// - Usa PokéAPI para buscar relações de dano entre tipos.
 //
 // Integração:
 //   - Importe e use getTeamWeaknesses para mostrar fraquezas do time.
@@ -35,6 +35,26 @@ export async function getPokemonTypeWeaknesses(
   }
 
   return Array.from(weaknesses);
+}
+
+export async function getPokemonTypeResistances(
+  types: string[]
+): Promise<string[]> {
+  const resistances = new Set<string>();
+
+  for (const type of types) {
+    const res = await fetch(`https://pokeapi.co/api/v2/type/${type}`);
+    const data = await res.json();
+
+    data.damage_relations.half_damage_from.forEach((resType: any) =>
+      resistances.add(resType.name)
+    );
+    data.damage_relations.no_damage_from.forEach((resType: any) =>
+      resistances.add(resType.name)
+    );
+  }
+
+  return Array.from(resistances);
 }
 
 export async function getTeamWeaknesses(team: TeamPokemon[]) {

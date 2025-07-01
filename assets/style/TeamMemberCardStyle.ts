@@ -17,13 +17,13 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   leftColumn: {
-    flex: 0.45,
+    flex: 0.5,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 10,
   },
   rightColumn: {
-    flex: 0.55,
+    flex: 0.5,
     justifyContent: 'space-between',
   },
   image: {
@@ -54,6 +54,12 @@ const styles = StyleSheet.create({
   typesContainer: {
     flexDirection: 'row',
     marginTop: 8,
+  },
+  typesContainer_vertical: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginTop: 8,
+    minHeight: 30,
   },
   detailRow: {
     marginBottom: 8,
