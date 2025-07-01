@@ -86,20 +86,23 @@ export default function PerfilScreen() {
         </View>
       </Modal>
       <View style={styles.header}>
+        <View style={styles.trainerNameRow}>
+          <Text style={styles.displayName}>
+            Treinador: {user.displayName || "Não definido"}
+          </Text>
+          <TouchableOpacity
+            style={styles.editNameButton}
+            onPress={() => setModalVisible(true)}
+          >
+            <Ionicons
+              name="pencil"
+              size={20}
+              color={theme.colors.grayscaleDark}
+            />
+          </TouchableOpacity>
+        </View>
         <TouchableOpacity style={styles.logoutButton} onPress={logout}>
           <Text style={styles.logoutButtonText}>Sair</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.displayNameContainer}>
-        <Text style={styles.displayName}>
-          Treinador: {user.displayName || "Não definido"}
-        </Text>
-        <TouchableOpacity onPress={() => setModalVisible(true)}>
-          <Ionicons
-            name="pencil"
-            size={20}
-            color={theme.colors.grayscaleDark}
-          />
         </TouchableOpacity>
       </View>
       <Text style={styles.email}>Email: {user.email}</Text>
@@ -155,12 +158,6 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontWeight: "bold",
   },
-  displayNameContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    marginBottom: 4,
-  },
   displayName: {
     fontSize: 20,
     fontWeight: "bold",
@@ -204,5 +201,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "gray",
     textAlign: "center",
+  },
+  trainerNameRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  editNameButton: {
+    marginLeft: 6,
+    padding: 2,
   },
 });

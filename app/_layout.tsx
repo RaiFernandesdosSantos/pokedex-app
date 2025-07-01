@@ -7,6 +7,7 @@ import { PokemonTeamProvider } from "@/context/PokemonTeamContext";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { View, ActivityIndicator } from "react-native";
 import AuthRedirect from "@/assets/components/AuthRedirect"; // Vamos criar este componente
+import { theme } from "@/assets/style/theme";
 
 // Este componente lida apenas com a lógica de redirecionamento
 const InitialLayout = () => {
@@ -15,7 +16,7 @@ const InitialLayout = () => {
   if (!isInitialized) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="#f4511e" />
+        <ActivityIndicator size="large" color="#d60a2c" />
       </View>
     );
   }
@@ -50,7 +51,9 @@ export default function RootLayout() {
                 name="[pokemonId]"
                 options={{
                   title: "Detalhes do Pokémon",
-                  headerStyle: { backgroundColor: "#f4511e" },
+                  headerStyle: {
+                    backgroundColor: theme.colors.identityPrimary,
+                  }, // vermelho
                   headerTintColor: "#fff",
                   headerTitleStyle: { fontWeight: "bold" },
                 }}
@@ -59,7 +62,9 @@ export default function RootLayout() {
                 name="ginasio/[leaderId]"
                 options={{
                   title: "Time do Líder",
-                  headerStyle: { backgroundColor: "#f4511e" },
+                  headerStyle: {
+                    backgroundColor: theme.colors.identityPrimary,
+                  }, // vermelho
                   headerTintColor: "#fff",
                   headerTitleStyle: { fontWeight: "bold" },
                 }}

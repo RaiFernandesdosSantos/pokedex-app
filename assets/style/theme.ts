@@ -2,7 +2,7 @@
 // Tema central do app (cores, espaçamentos).
 
 export const colors = {
-  identityPrimary: "#dc0a2d",
+  identityPrimary: "#d60a2c",
   identitySecondary: "#28aafd",
   grayscaleDark: "#1d1d1d",
   grayscaleMedium: "#666666",

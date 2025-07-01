@@ -17,7 +17,7 @@ export default function DrawerLayout() {
       screenOptions={{
         drawerPosition: "right",
         headerShown: true,
-        headerStyle: { backgroundColor: "#f4511e" },
+        headerStyle: { backgroundColor: "#d60a2c" },
         headerTintColor: "#fff",
         headerTitleStyle: { fontWeight: "bold" },
         headerRight: () => <DrawerToggleButton tintColor="#fff" />,
