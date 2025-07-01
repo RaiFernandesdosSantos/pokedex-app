@@ -86,7 +86,6 @@ export default function PerfilScreen() {
         </View>
       </Modal>
       <View style={styles.header}>
-        <Text style={styles.title}>Perfil do Treinador</Text>
         <TouchableOpacity style={styles.logoutButton} onPress={logout}>
           <Text style={styles.logoutButtonText}>Sair</Text>
         </TouchableOpacity>

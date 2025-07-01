@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   FlatList,
   View,
@@ -15,7 +15,6 @@ import CardPokemon from "@/assets/components/CardPokemon";
 import { fetchAllPokemons, Pokemon } from "@/services/pokemonService";
 import { styles } from "@/assets/style/IndexStyle";
 import { useRouter } from "expo-router";
-import { useAuth } from "@/context/AuthContext";
 
 export default function HomeScreen() {
   const [pokemons, setPokemons] = useState<Pokemon[]>([]);
@@ -23,13 +22,13 @@ export default function HomeScreen() {
   const [searchText, setSearchText] = useState("");
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const router = useRouter();
-  const { user } = useAuth();
   const { width } = useWindowDimensions(); // Hook to get screen dimensions
   const searchAnimation = useRef(new Animated.Value(0)).current;
+
   // Calculate number of columns based on screen width
   const cardWidth = 160; // Card width from CardStyle.ts
   const cardMargin = 8 * 2; // Margin from CardStyle.ts (both sides)
-  const numColumns = Math.floor(width / (cardWidth + cardMargin)) || 1; // Ensure at least 1 column
+  const numColumns = Math.floor(width / (cardWidth + cardMargin)) || 1;
 
   const toggleSearch = () => {
     const toValue = isSearchVisible ? 0 : 1;
@@ -57,9 +56,14 @@ export default function HomeScreen() {
     loadPokemons();
   }, []);
 
-  const filtrados = pokemons.filter((pokemon) =>
-    pokemon.name.toLowerCase().includes(searchText.toLowerCase())
-  );
+  const filtrados = pokemons.filter((pokemon) => {
+    const query = searchText.toLowerCase();
+    return (
+      pokemon.name.toLowerCase().includes(query) ||
+      pokemon.types.some((t) => t.toLowerCase().includes(query)) ||
+      pokemon.id.toString().includes(query)
+    );
+  });
 
   if (loading) {
     return (

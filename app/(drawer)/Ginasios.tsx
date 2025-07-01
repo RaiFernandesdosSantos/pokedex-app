@@ -55,7 +55,6 @@ export default function GymScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Líderes de Ginásio (Kanto)</Text>
       <FlatList
         data={leadersWithDetails}
         keyExtractor={(leader) => leader.name}

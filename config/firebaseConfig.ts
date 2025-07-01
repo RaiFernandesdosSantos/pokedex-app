@@ -4,8 +4,9 @@
 // Atenção: nunca exponha suas chaves em repositórios públicos.
 
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { initializeAuth, getReactNativePersistence } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCa9RiSyqvBPvLBoeKFboDzB7rQrwy7hVw", // do google-services.json
@@ -19,7 +20,9 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-const auth = getAuth(app);
+const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(AsyncStorage),
+});
 
 const db = getFirestore(app);
 
