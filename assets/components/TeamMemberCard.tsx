@@ -9,6 +9,10 @@ import {
   FlatList,
   ActivityIndicator,
   Alert,
+  SafeAreaView,
+  Dimensions,
+  Platform,
+  ScrollView,
 } from "react-native";
 import { usePokemonTeam } from "@/context/PokemonTeamContext";
 import { TeamPokemon } from "@/context/PokemonTeamContext";
@@ -18,6 +22,8 @@ import TypeBadge from "./TypeBadge";
 import { fetchPokemonDetails } from "@/services/pokemonService";
 import { fetchAllItems, PokemonItem } from "@/services/itemService";
 import { kantoHMs } from "@/services/moveService";
+import { Ionicons } from "@expo/vector-icons";
+import { StyleSheet } from "react-native";
 
 type TeamMemberCardProps = {
   pokemon: TeamPokemon;
@@ -49,6 +55,7 @@ const TeamMemberCard: React.FC<TeamMemberCardProps> = ({
   const [itemSearch, setItemSearch] = useState("");
   const [items, setItems] = useState<PokemonItem[]>([]);
   const [isLoadingItems, setIsLoadingItems] = useState(false);
+  const [statsVisible, setStatsVisible] = useState(false);
 
   // Cor de fundo baseada no tipo primário
   const primaryType =
@@ -185,93 +192,122 @@ const TeamMemberCard: React.FC<TeamMemberCardProps> = ({
   };
 
   return (
-    <View style={[styles.cardContainer, { backgroundColor }]}>
-      {/* COLUNA 1: IMAGEM E INFO BÁSICA */}
-      <View style={styles.leftColumn}>
-        <Image source={{ uri: pokemon.imageUrl }} style={styles.image} />
-        <Text style={styles.name}>{pokemon.name}</Text>
-        {isEditable && (
-          <TouchableOpacity onPress={() => setLevelModalVisible(true)}>
-            <Text style={styles.level}>Nível: {pokemon.level}</Text>
-          </TouchableOpacity>
-        )}
-        {!isEditable && (
-          <Text style={styles.level}>Nível: {pokemon.level}</Text>
-        )}
-        <View style={styles.typesContainer_vertical}>
-          {pokemon.types.map((type) => (
-            <TypeBadge key={type} typeName={type} />
-          ))}
-        </View>
-      </View>
-      {/* DIVISÓRIA SUTIL */}
-      <View style={styles.divider} />
-      {/* COLUNA 2: DETALHES ESTRATÉGICOS */}
-      <View style={styles.rightColumn}>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailTitle}>Habilidade</Text>
-          <Text style={styles.detailValue}>{pokemon.ability}</Text>
-        </View>
-        <View style={styles.divider} />
-        <View style={styles.detailRow}>
-          <Text style={styles.detailTitle}>Item</Text>
-          <TouchableOpacity onPress={isEditable ? loadItems : undefined}>
-            <Text style={styles.detailValue}>
-              {pokemon.heldItem || "Nenhum"}
-            </Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.divider} />
-        <TouchableOpacity onPress={loadMoves} disabled={!isEditable}>
-          <View style={styles.movesContainer}>
-            <Text style={styles.detailTitle}>Golpes</Text>
-            {pokemon.moves.length > 0 ? (
-              pokemon.moves
-                .filter((move) => typeof move === "string" && move)
-                .map((move, index) => (
-                  <View key={index} style={styles.moveSlot}>
-                    <Text style={styles.moveText}>{move}</Text>
-                  </View>
-                ))
-            ) : (
-              <View style={styles.moveSlot}>
-                <Text
-                  style={[
-                    styles.moveText,
-                    { fontStyle: "italic", opacity: 0.7 },
-                  ]}
-                >
-                  Adicionar golpe...
-                </Text>
-              </View>
-            )}
+    <View style={styles.cardWrapper}>
+      <View style={[styles.cardContainer, { backgroundColor }]}>
+        <View style={styles.mainContent}>
+          {/* COLUNA 1: IMAGEM, NOME, NÍVEL, TIPOS, TOGGLE STATS */}
+          <View style={styles.leftColumn}>
+            <Image source={{ uri: pokemon.imageUrl }} style={styles.image} />
+            <Text style={styles.name}>{pokemon.name}</Text>
+            <TouchableOpacity
+              disabled={!isEditable}
+              onPress={() => setLevelModalVisible(true)}
+            >
+              <Text style={styles.level}>Nível: {pokemon.level}</Text>
+            </TouchableOpacity>
+            <View style={styles.typesContainer_vertical}>
+              {pokemon.types.map((type) => (
+                <TypeBadge key={type} typeName={type} />
+              ))}
+            </View>
+            <TouchableOpacity
+              style={styles.statsToggle}
+              onPress={() => setStatsVisible(!statsVisible)}
+            >
+              <Text style={styles.detailTitle}>
+                STATS {statsVisible ? "▼" : "▶"}
+              </Text>
+            </TouchableOpacity>
           </View>
-        </TouchableOpacity>
-        <View style={{ marginTop: 10 }}>
-          <Text style={styles.detailTitle}>Stats (Nível {pokemon.level})</Text>
-          {Object.entries(calculatedStats).map(([name, value]) => (
-            <Text key={name} style={styles.detailValue}>
-              {name.replace("-", " ")}: {value}
-            </Text>
-          ))}
+          {/* COLUNA 2: HABILIDADE, ITEM, GOLPES */}
+          <View style={styles.rightColumn}>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailTitle}>Habilidade</Text>
+              <Text style={styles.detailValue}>{pokemon.ability}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailTitle}>Item</Text>
+              <TouchableOpacity onPress={isEditable ? loadItems : undefined}>
+                <Text style={styles.detailValue}>
+                  {pokemon.heldItem || "Nenhum"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity onPress={loadMoves} disabled={!isEditable}>
+              <View style={styles.movesContainer}>
+                <Text style={styles.detailTitle}>Golpes</Text>
+                {pokemon.moves.length > 0 ? (
+                  pokemon.moves
+                    .filter((move) => typeof move === "string" && move)
+                    .map((move, index) => (
+                      <View key={index} style={styles.moveSlot}>
+                        <Text style={styles.moveText}>{move}</Text>
+                      </View>
+                    ))
+                ) : (
+                  <View style={styles.moveSlot}>
+                    <Text
+                      style={[
+                        styles.moveText,
+                        { fontStyle: "italic", opacity: 0.7 },
+                      ]}
+                    >
+                      Adicionar golpe...
+                    </Text>
+                  </View>
+                )}
+              </View>
+            </TouchableOpacity>
+          </View>
         </View>
-        {isEditable && (
-          <TouchableOpacity
-            onPress={() => removeFromTeam(pokemon.id)}
-            style={{
-              marginTop: 16,
-              backgroundColor: theme.colors.identityPrimary,
-              borderRadius: 8,
-              paddingVertical: 8,
-              alignItems: "center",
-            }}
-          >
-            <Text style={{ color: "#fff", fontWeight: "bold", fontSize: 16 }}>
-              Remover
+        {/* STATS EXPANSÍVEL */}
+        {statsVisible && (
+          <View style={styles.statsContainer}>
+            <View
+              style={{
+                height: 1,
+                backgroundColor: "rgba(255,255,255,0.2)",
+                marginVertical: 8,
+              }}
+            />
+            <Text style={[styles.detailTitle, { textAlign: "center" }]}>
+              Stats (Nível {pokemon.level})
             </Text>
-          </TouchableOpacity>
+            {Object.entries(calculatedStats).map(([name, value]) => (
+              <Text
+                key={name}
+                style={[styles.detailValue, { textAlign: "center" }]}
+              >
+                {name.replace("-", " ")}: {value}
+              </Text>
+            ))}
+          </View>
         )}
       </View>
+      {/* BOTÃO REMOVER */}
+      {isEditable && (
+        <View style={styles.removeButtonContainer}>
+          <TouchableOpacity
+            style={styles.removeButton}
+            onPress={() =>
+              Alert.alert(
+                "Remover Pokémon",
+                `Deseja remover ${pokemon.name} do time?`,
+                [
+                  { text: "Cancelar", style: "cancel" },
+                  {
+                    text: "Remover",
+                    style: "destructive",
+                    onPress: () => removeFromTeam(pokemon.id),
+                  },
+                ]
+              )
+            }
+          >
+            <Text style={styles.removeButtonText}>Remover</Text>
+          </TouchableOpacity>
+        </View>
+      )}
       {/* Modal de Nível */}
       <Modal visible={levelModalVisible} animationType="slide" transparent>
         <View
@@ -417,82 +453,95 @@ const TeamMemberCard: React.FC<TeamMemberCardProps> = ({
           </View>
         </View>
       </Modal>
-      {/* Modal de Itens */}
+      {/* --- MODAL DE ITENS REESTILIZADO --- */}
       <Modal visible={itemModalVisible} animationType="slide" transparent>
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundColor: "rgba(0,0,0,0.5)",
-            position: "absolute",
-            width: "100%",
-            height: "100%",
-          }}
-        >
-          <View
-            style={{
-              backgroundColor: "#222",
-              padding: 24,
-              borderRadius: 16,
-              width: 320,
-              maxHeight: 400,
-            }}
-          >
-            <Text
-              style={{
-                color: "#fff",
-                fontSize: 18,
-                fontWeight: "bold",
-                marginBottom: 12,
-              }}
-            >
-              Selecionar Item
-            </Text>
-            <TextInput
-              placeholder="Buscar item..."
-              value={itemSearch}
-              onChangeText={setItemSearch}
-              style={{
-                borderWidth: 1,
-                borderColor: "#555",
-                color: "#fff",
-                padding: 8,
-                borderRadius: 8,
-                marginBottom: 12,
-              }}
-            />
-            {isLoadingItems ? (
-              <ActivityIndicator color={theme.colors.identityPrimary} />
-            ) : (
-              <FlatList
-                data={items.filter((item) =>
-                  item.name.toLowerCase().includes(itemSearch.toLowerCase())
-                )}
-                keyExtractor={(item) => item.name}
-                style={{ maxHeight: 220 }}
-                renderItem={({ item }) => (
-                  <TouchableOpacity onPress={() => handleSelectItem(item.name)}>
-                    <Text
-                      style={{
-                        color: "#fff",
-                        fontSize: 16,
-                        paddingVertical: 6,
-                        borderBottomWidth: 1,
-                        borderBottomColor: "#333",
-                      }}
-                    >
-                      {item.name.replace(/-/g, " ")}
-                    </Text>
-                  </TouchableOpacity>
-                )}
+        <View style={modalStyles.overlay}>
+          <View style={modalStyles.innerWrapper}>
+            <SafeAreaView style={modalStyles.container}>
+              {/* Cabeçalho do Modal */}
+              <View style={modalStyles.header}>
+                <Text style={modalStyles.title}>Selecionar Item</Text>
+                <TouchableOpacity onPress={() => setItemModalVisible(false)}>
+                  <Ionicons name="close-circle" size={28} color="#aaa" />
+                </TouchableOpacity>
+              </View>
+              {/* Barra de Busca */}
+              <TextInput
+                placeholder="Buscar item..."
+                placeholderTextColor="#888"
+                value={itemSearch}
+                onChangeText={setItemSearch}
+                style={modalStyles.searchInput}
               />
-            )}
-            <TouchableOpacity onPress={() => setItemModalVisible(false)}>
-              <Text style={{ color: "#fff", fontSize: 16, marginTop: 10 }}>
-                Cancelar
-              </Text>
-            </TouchableOpacity>
+              {isLoadingItems ? (
+                <ActivityIndicator
+                  style={{ marginTop: 20 }}
+                  color={theme.colors.identityPrimary}
+                />
+              ) : Platform.OS === "web" ? (
+                <ScrollView
+                  style={{ flex: 1 }}
+                  contentContainerStyle={{ paddingBottom: 20 }}
+                >
+                  {items
+                    .filter((item) =>
+                      item.name.toLowerCase().includes(itemSearch.toLowerCase())
+                    )
+                    .map((item) => (
+                      <TouchableOpacity
+                        key={item.name}
+                        style={modalStyles.itemRow}
+                        onPress={() => handleSelectItem(item.name)}
+                      >
+                        <Image
+                          source={{ uri: item.sprite }}
+                          style={modalStyles.itemSprite}
+                        />
+                        <View style={modalStyles.itemInfo}>
+                          <Text style={modalStyles.itemName}>{item.name}</Text>
+                          <Text
+                            style={modalStyles.itemDescription}
+                            numberOfLines={2}
+                          >
+                            {item.description}
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                    ))}
+                </ScrollView>
+              ) : (
+                <View style={{ flex: 1 }}>
+                  <FlatList
+                    data={items.filter((item) =>
+                      item.name.toLowerCase().includes(itemSearch.toLowerCase())
+                    )}
+                    keyExtractor={(item) => item.name}
+                    contentContainerStyle={{ paddingBottom: 20 }}
+                    keyboardShouldPersistTaps="handled"
+                    renderItem={({ item }) => (
+                      <TouchableOpacity
+                        style={modalStyles.itemRow}
+                        onPress={() => handleSelectItem(item.name)}
+                      >
+                        <Image
+                          source={{ uri: item.sprite }}
+                          style={modalStyles.itemSprite}
+                        />
+                        <View style={modalStyles.itemInfo}>
+                          <Text style={modalStyles.itemName}>{item.name}</Text>
+                          <Text
+                            style={modalStyles.itemDescription}
+                            numberOfLines={2}
+                          >
+                            {item.description}
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                    )}
+                  />
+                </View>
+              )}
+            </SafeAreaView>
           </View>
         </View>
       </Modal>
@@ -501,3 +550,75 @@ const TeamMemberCard: React.FC<TeamMemberCardProps> = ({
 };
 
 export default TeamMemberCard;
+
+// --- NOVOS ESTILOS APENAS PARA OS MODAIS ---
+const modalStyles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.6)",
+  },
+  innerWrapper: {
+    width: "90%",
+    maxHeight: Dimensions.get("window").height * 0.75,
+    flexShrink: 1,
+  },
+  container: {
+    backgroundColor: "#282828",
+    borderRadius: 16,
+    padding: 20,
+    flexGrow: 1,
+    flexDirection: "column",
+    overflow: "scroll",
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderBottomWidth: 1,
+    borderBottomColor: "#444",
+    paddingBottom: 10,
+    marginBottom: 10,
+  },
+  title: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  searchInput: {
+    backgroundColor: "#333",
+    borderWidth: 1,
+    borderColor: "#555",
+    color: "#fff",
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  itemRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#3a3a3a",
+  },
+  itemSprite: {
+    width: 32,
+    height: 32,
+    marginRight: 15,
+  },
+  itemInfo: {
+    flex: 1,
+  },
+  itemName: {
+    color: "#fff",
+    fontSize: 16,
+    textTransform: "capitalize",
+    fontWeight: "600",
+  },
+  itemDescription: {
+    color: "#aaa",
+    fontSize: 12,
+    marginTop: 2,
+  },
+});
