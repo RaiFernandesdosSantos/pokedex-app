@@ -96,6 +96,7 @@ export const PokemonTeamProvider = ({ children }: { children: ReactNode }) => {
       { team: updatedTeam },
       { merge: true }
     );
+    console.log("Pokemon Add ao time");
   };
 
   const removeFromTeam = async (pokemonId: number) => {
