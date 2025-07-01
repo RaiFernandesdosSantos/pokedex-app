@@ -9,7 +9,7 @@ const styles = StyleSheet.create({
   cardContainer: {
     borderRadius: 16,
     padding: 12,
-    width: '100%',
+    width: 320,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
